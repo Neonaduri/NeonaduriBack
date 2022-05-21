@@ -34,13 +34,20 @@ public class PostController {
         return ResponseEntity.status(201).body(postService.makeRoom(roomMakeRequestDto, user));
     }
 
+    //만들어진 방에서 계획 다시 조회하기
+    @GetMapping("/plans/{postUUID}")
+    public RoomMakeRequestDto getPost(@PathVariable String postUUID) {
+        return postService.getPost(postUUID);
+    }
+
+
     //자랑하기, 나만보기 저장
     @PutMapping("/plans/save")
     public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
         User user=userDetails.getUser();
-        Long postId=postService.showAll(postRequestDto, user);
-        if(postRequestDto.getPostId().equals(postId)){
+        String postUUID=postService.showAll(postRequestDto, user);
+        if(postRequestDto.getPostUUID().equals(postUUID)){
             return ResponseEntity.status(201).body("201");
         }else{
             return ResponseEntity.status(400).body("400");
@@ -159,12 +166,6 @@ public class PostController {
                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
         return postService.leavePost(postId, user);
-    }
-
-    //만들어진 방에서 계획 다시 조회하기
-    @GetMapping("/plans/{postId}")
-    public RoomMakeRequestDto getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
     }
 
     //내가 작성한 플랜조회

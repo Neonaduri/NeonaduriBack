@@ -45,17 +45,32 @@ public class PostService {
     public RoomMakeRequestDto makeRoom(RoomMakeRequestDto roomMakeRequestDto, User user) {
 
         Post post= new Post(roomMakeRequestDto, user);
+
         postRepository.save(post);
+
         Long postId=post.getPostId();
+
         roomMakeRequestDto.setPostId(postId);
+        roomMakeRequestDto.setPostUUID(post.getPostUUID());
+        roomMakeRequestDto.setUser(user);
+        return roomMakeRequestDto;
+    }
+
+    // 플랜 계획 조회하기
+    public RoomMakeRequestDto getPost(String postUUID) {
+        Post post = postRepository.findByPostUUID(postUUID).orElseThrow(
+                ()-> new IllegalArgumentException("게시물이 존재하지 않습니다.")
+        );
+        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getPostUUID(), post.getStartDate(),
+                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme(),post.getUser());
         return roomMakeRequestDto;
     }
 
     //자랑하기
     @Transactional
-    public Long showAll(PostRequestDto postRequestDto, User user) {
+    public String showAll(PostRequestDto postRequestDto, User user) {
 
-        postRepository.findByUserAndPostId(user, postRequestDto.getPostId()).orElseThrow(
+        postRepository.findByUserAndPostUUID(user, postRequestDto.getPostUUID()).orElseThrow(
                 ()->new IllegalArgumentException("방을 생성한 유저만 여행 계획 저장이 가능합니다.")
         );
 
@@ -78,14 +93,14 @@ public class PostService {
             daysRepository.save(days);
             daysList.add(days);
         }
-        Post post=postRepository.findById(postRequestDto.getPostId()).orElseThrow(
+        Post post=postRepository.findByPostUUID(postRequestDto.getPostUUID()).orElseThrow(
                 ()->new NullPointerException("해당 계획이 없습니다")
         );
         postRequestDto.setPostImgUrl(imageBundle.searchImage());
         //전체 여행계획 저장
         post.completeSave(postRequestDto,daysList);
         postRepository.save(post);
-        return post.getPostId();
+        return post.getPostUUID();
     }
 
     //내가 찜한 게시물 조회
@@ -348,16 +363,6 @@ public class PostService {
         return paging.overPagesCheck(searchList,start,end,pageable,pageno);
     }
 
-
-    // 플랜 계획 조회하기
-    public RoomMakeRequestDto getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
-                ()-> new IllegalArgumentException("게시물이 존재하지 않습니다.")
-        );
-        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getStartDate(),
-                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme());
-        return roomMakeRequestDto;
-    }
 //--------------------------------------------------------------------------------------
     // 내가 작성한 플랜조회
     public Page<PostListDto> getMyPosts(int pageno, UserDetailsImpl userDetails) {
@@ -395,7 +400,7 @@ public class PostService {
     //플랜 저장 안함.(새로고침 뒤로가기)
     @Transactional
     public ResponseEntity<String> leavePost(Long postId, User user) {
-        Post post = postRepository.findByPostId(postId).orElse(null);
+        Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return new ResponseEntity<>("없는 게시글입니다.", HttpStatus.BAD_REQUEST);
         }

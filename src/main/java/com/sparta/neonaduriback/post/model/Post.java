@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +25,9 @@ public class Post extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
+
+    @Column(nullable = false)
+    private String postUUID;
 
     @Column(nullable = false)
     private String startDate;
@@ -65,8 +70,16 @@ public class Post extends Timestamped {
     @JoinColumn(name = "days")
     private List<Days> days = new ArrayList<>();
 
+    public static String makeShortUUID() {
+        UUID uuid = UUID.randomUUID();
+        long l = ByteBuffer.wrap(uuid.toString().getBytes()).getLong();
+        String str = Long.toString(l, Character.MAX_RADIX);
+        return str;
+    }
+
     //방 만들어줄 때 생성자
     public Post(RoomMakeRequestDto roomMakeRequestDto, User user){
+        this.postUUID=makeShortUUID();
         this.startDate=roomMakeRequestDto.getStartDate();
         this.endDate=roomMakeRequestDto.getEndDate();
         this.dateCnt=roomMakeRequestDto.getDateCnt();

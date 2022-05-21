@@ -198,9 +198,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     //cors 해결
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:3000"); // local 테스트 시
-//        corsConfiguration.addAllowedOrigin("http://neonaduri.com"); //배포시
-//        corsConfiguration.addAllowedOrigin("https://neonaduri.com"); //배포시
+//        corsConfiguration.addAllowedOrigin("http://localhost:3000"); // local 테스트 시
+        corsConfiguration.addAllowedOrigin("https://neonaduri.com"); //배포시
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addExposedHeader("Authorization");

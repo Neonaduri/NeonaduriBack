@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class PostRequestDto {
 
-    private Long postId;
+    private String postUUID;
     private String startDate;
     private String endDate;
     private String dateCnt;
