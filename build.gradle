@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.0'
+    id 'org.springframework.boot' version '2.6.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -22,9 +22,50 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // json
+    implementation group: 'org.json', name: 'json', version: '20160810'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+    implementation 'com.auth0:java-jwt:3.19.1'
+
+    implementation 'commons-io:commons-io:2.11.0'
+
+    // 스프링 시큐리티
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //test
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    //AWS s3
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
+
+    // firebase
+    implementation group: 'com.google.firebase', name: 'firebase-admin', version: '8.1.0'
+
+    // openvidu
+    implementation 'io.openvidu:openvidu-java-client:2.21.1'
+
+    //유효성 검사를 위한 validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // sentry
+    implementation 'io.sentry:sentry-spring-boot-starter:5.7.4'
+    implementation 'io.sentry:sentry-logback:5.7.4'
+
+    // Jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
 }
 
 tasks.named('test') {
