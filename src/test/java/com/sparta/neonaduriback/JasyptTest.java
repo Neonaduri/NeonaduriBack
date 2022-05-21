@@ -1,6 +1,6 @@
-package com.sparta.neonaduriback;
-
-public class JasyptTest {
+//package com.sparta.neonaduriback;
+//
+//public class JasyptTest {
 
 //    @Test
 //    public void stringEncryptor(){
@@ -28,4 +28,4 @@ public class JasyptTest {
 //        assertThat(text).isEqualTo(decryptText);
 //    }
 
-}
+//}
