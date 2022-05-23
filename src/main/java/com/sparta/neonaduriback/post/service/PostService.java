@@ -404,7 +404,7 @@ public class PostService {
         return new ResponseEntity<>("삭제 완료.",HttpStatus.OK);
     }
 
-
+    // 여행 게시물 삭제
     @Transactional
     public Long deletePost(UserDetailsImpl userDetails, Long postId) {
         Post post=postRepository.findById(postId).orElseThrow(
