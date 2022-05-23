@@ -15,6 +15,8 @@ package com.sparta.neonaduriback.login.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.neonaduriback.common.image.model.Image;
+import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.login.dto.SocialLoginInfoDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
@@ -45,6 +47,7 @@ import java.util.UUID;
 public class KakaoUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
 
     public SocialLoginInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -154,6 +157,9 @@ public class KakaoUserService {
             String encodedPassword = passwordEncoder.encode(password);
 
             String profileImgUrl = kakaoUserInfo.getProfileImgUrl();
+
+            Image image = new Image(profileImgUrl);
+            imageRepository.save(image);
 
             kakaoUser = new User(userName, nickName, encodedPassword, profileImgUrl);
             userRepository.save(kakaoUser);

@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.neonaduriback.common.image.model.Image;
+import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.login.dto.SocialLoginInfoDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
@@ -57,6 +59,7 @@ public class GoogleLoginService {
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
     // 구글 로그인
     public SocialLoginInfoDto googleLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -156,6 +159,10 @@ public class GoogleLoginService {
                     .build();
             userRepository.save(googoleUser);
         }
+
+        Image image = new Image(profileImgUrl);
+        imageRepository.save(image);
+
         return googoleUser;
     }
 

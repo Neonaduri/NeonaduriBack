@@ -25,4 +25,8 @@ public class Image {
         this.filename = filename;
         this.imageUrl = imageUrl;
     }
+    public Image(String profileImgUrl) {
+        this.filename = profileImgUrl + "1";
+        this.imageUrl = profileImgUrl;
+    }
 }

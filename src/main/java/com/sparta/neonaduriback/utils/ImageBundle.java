@@ -23,7 +23,6 @@ public class ImageBundle {
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD1.jpg");
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD10.jpg");
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD11.jpg");
-        searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD12.jpg");
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD2.jpg");
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD3.jpg");
         searchImage.add("https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/location/%EC%A7%80%EC%97%AD4.jpg");
