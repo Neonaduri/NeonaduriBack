@@ -1,6 +1,7 @@
 package com.sparta.neonaduriback.post.places;
 
 import com.sparta.neonaduriback.common.model.Timestamped;
+import com.sparta.neonaduriback.post.days.model.Days;
 import com.sparta.neonaduriback.post.dto.PlaceRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Places extends Timestamped {
+public class Places {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long placeId;
@@ -42,9 +43,12 @@ public class Places extends Timestamped {
     @Column(nullable = false)
     private String lng;
 
-//    @ManyToOne
-//    @JoinColumn(name = "DAYS_ID")
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "PLACES_ID")
 //    private Days days;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "POST_ID")
 
     public Places(PlaceRequestDto placeRequestDto){
         this.placeName=placeRequestDto.getPlaceName();

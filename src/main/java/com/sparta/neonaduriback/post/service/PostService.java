@@ -24,10 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -81,10 +78,22 @@ public class PostService {
             int dateNumber=i+1;
 
             List<PlaceRequestDto> placeRequestDtoList=dayRequestDtoList.get(i).getPlaces();
+
+            //위에 리스트를 정렬?
+            Comparator<PlaceRequestDto> comparator = new Comparator<PlaceRequestDto>() {
+                @Override
+                public int compare(PlaceRequestDto a, PlaceRequestDto b) {
+                    //오름차순(뺄셈이 양수일 시)
+                    return a.getPlanTime()- b.getPlanTime();
+                }
+            };
+            Collections.sort(placeRequestDtoList, comparator);
+
             List<Places> placesList=new ArrayList<>();
             //n일차에 대한 n개의 방문 장소 Places entity에 저장
             for(PlaceRequestDto placeRequestDtos:placeRequestDtoList){
                 Places places= new Places(placeRequestDtos);
+
                 placesRepository.save(places);
                 placesList.add(places);
             }
@@ -148,7 +157,7 @@ public class PostService {
     public int getTotalLike(UserDetailsImpl userDetails) {
 
         //내가 쓴 게시물 다 조회
-        List<Post> posts=postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
+        List<Post> posts=postRepository.findAllByUserOrderByCreatedAtDesc(userDetails.getUser());
         int totalLike=0;
 
         //내가 쓴 게시물이 있다면 찜 엔티티에서 게시물 갯수 카운트 -> 유저들한테 찜받은 갯수를 말함
@@ -246,7 +255,7 @@ public class PostService {
     }
 
     //테마별 검색조회(8개)
-    public Page<PlanResponseDto> showThemePosts(String theme, int pageno, UserDetailsImpl userDetails) {
+    public Page<?> showThemePosts(String theme, int pageno, UserDetailsImpl userDetails) {
 
         List<Post> themePostList=postRepository.findAllByThemeOrderByLikeCntDesc(theme);
 
@@ -277,62 +286,46 @@ public class PostService {
         int start=pageno*8;
         int end=Math.min((start+8), themeList.size());
 
-        return paging.overPagesCheck(themeList,start,end,pageable,pageno);
+        return paging.overPages(themeList,start,end,pageable,pageno);
     }
 
     //게시물 상세조회
     public Post showDetail(Long postId, UserDetailsImpl userDetails) {
 
-        Post post=postRepository.findById(postId).orElseThrow(
-                ()->new IllegalArgumentException("해당 게시물이 없습니다")
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new IllegalArgumentException("해당 계획이 없습니다.")
         );
 
         post.setIslike(userLikeTrueOrNot(userDetails.getUser().getId(), postId));
 
         //전체공개이고
-        if(post.isIspublic()){
+        if (post.isIspublic()) {
 
             // 게시글 조회 수 계산
-            post.setViewCnt(post.getViewCnt()+1);
+            post.setViewCnt(post.getViewCnt() + 1);
             postRepository.save(post);
 
             return postRepository.findById(postId).orElseThrow(
-                    ()->new IllegalArgumentException("해당 게시물이 없습니다")
+                    () -> new IllegalArgumentException("해당 게시물이 없습니다")
             );
-        }else{
+        } else {
             // 현재 유저가 작성자와 같으면
-            if(post.getUser().getId().equals(userDetails.getUser().getId())){
+            if (post.getUser().getId().equals(userDetails.getUser().getId())) {
                 return postRepository.findById(postId).orElseThrow(
-                        ()->new IllegalArgumentException("해당 게시물이 없습니다")
+                        () -> new IllegalArgumentException("해당 게시물이 없습니다")
                 );
-            }else{
+            } else
                 return null;
-            }
         }
-    }
-
-    @Transactional
-    //여행 게시물 삭제
-    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
-        Post post=postRepository.findById(postId).orElseThrow(
-                ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
-        );
-        if(post.getUser().getId()!=userDetails.getUser().getId()){
-            throw new IllegalArgumentException("게시물 작성자만 삭제가 가능합니다");
-        }
-        reviewRepository.deleteAllByPostId(postId);
-        likeRepository.deleteAllByPostId(postId);
-        postRepository.deleteById(postId);
-        return postId;
     }
 
     //검색결과 조회
-    public Page<PlanResponseDto> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
+    public Page<?> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
         String postTitle=keyword;
         String location=keyword;
         String theme=keyword;
 
-        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByModifiedAtDesc(
+        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(
                 postTitle,location,theme
         );
         List<PlanResponseDto> searchList=new ArrayList<>();
@@ -360,15 +353,15 @@ public class PostService {
         int start=pageno*8;
         int end=Math.min((start+8), searchList.size());
 
-        return paging.overPagesCheck(searchList,start,end,pageable,pageno);
+        return paging.overPages(searchList,start,end,pageable,pageno);
     }
 
 //--------------------------------------------------------------------------------------
     // 내가 작성한 플랜조회
-    public Page<PostListDto> getMyPosts(int pageno, UserDetailsImpl userDetails) {
+    public Page<?> getMyPosts(int pageno, UserDetailsImpl userDetails) {
 
         // 유저가 작성한 글 조회
-        List<Post> posts = postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
+        List<Post> posts = postRepository.findAllByUserOrderByCreatedAtDesc(userDetails.getUser());
 
         Pageable pageable = getPageableList5(pageno);
 
@@ -393,21 +386,36 @@ public class PostService {
         int start = pageno * 5;
         int end = Math.min((start + 5), myplanList.size());
 
-        return paging.overPages2(myplanList, start, end, pageable, pageno);
+        return paging.overPages(myplanList, start, end, pageable, pageno);
     }
 
 
     //플랜 저장 안함.(새로고침 뒤로가기)
     @Transactional
-    public ResponseEntity<String> leavePost(Long postId, User user) {
-        Post post = postRepository.findById(postId).orElse(null);
+    public ResponseEntity<String> leavePost(String postUUID, User user) {
+        Post post = postRepository.findByPostUUID(postUUID).orElse(null);
         if (post == null) {
             return new ResponseEntity<>("없는 게시글입니다.", HttpStatus.BAD_REQUEST);
         }
         if (!Objects.equals(post.getUser().getUserName(), user.getUserName())) {
             return new ResponseEntity<>("없는 사용자이거나 다른 사용자의 게시글입니다.", HttpStatus.BAD_REQUEST);
         }
-        postRepository.deleteById(postId);
+        postRepository.deleteByPostUUID(postUUID);
         return new ResponseEntity<>("삭제 완료.",HttpStatus.OK);
     }
-}
+
+
+    @Transactional
+    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
+        Post post=postRepository.findById(postId).orElseThrow(
+                ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
+        );
+        if(!post.getUser().getId().equals(userDetails.getUser().getId())){
+            throw new IllegalArgumentException("게시물 작성자만 삭제가 가능합니다");
+        }
+        reviewRepository.deleteAllByPostId(postId);
+        likeRepository.deleteAllByPostId(postId);
+        postRepository.deleteById(postId);
+        return postId;
+    }
+    }

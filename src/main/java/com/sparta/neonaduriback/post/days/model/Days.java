@@ -1,5 +1,6 @@
 package com.sparta.neonaduriback.post.days.model;
 
+import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.places.Places;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,12 +20,12 @@ public class Days {
     @Column(nullable = false)
     private int dateNumber;
 
-//    @ManyToOne
+//    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "POST_ID")
 //    private Post post;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "places")
+    @JoinColumn(name = "DAYS_ID")
     private List<Places> places = new ArrayList<>();
 
     public Days(int dateNumber, List<Places> placesList){

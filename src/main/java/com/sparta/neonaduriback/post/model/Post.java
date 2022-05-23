@@ -5,6 +5,7 @@ import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.post.days.model.Days;
 import com.sparta.neonaduriback.post.dto.PostRequestDto;
 import com.sparta.neonaduriback.post.dto.RoomMakeRequestDto;
+import com.sparta.neonaduriback.post.places.Places;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +45,7 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String location;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 500)
     private String postImgUrl;
 
     @Column(nullable = false)
@@ -67,7 +68,7 @@ public class Post extends Timestamped {
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "days")
+    @JoinColumn(name = "POST_ID")
     private List<Days> days = new ArrayList<>();
 
     public static String makeShortUUID() {

@@ -64,7 +64,7 @@ public class ReviewService {
     }
 
     // 후기 조회
-    public Page<ReviewListDto> getReviews(Long postId, int pageno) {
+    public Page<?> getReviews(Long postId, int pageno) {
 
         // 후기 list 빈 배열 선언
         List<ReviewListDto> reviewList = new ArrayList<>();
@@ -85,7 +85,7 @@ public class ReviewService {
         int start = pageno * 4;
         int end =  Math.min((start + 4), reviewList.size());
 
-        return paging.overPages3(reviewList, start, end, pageable, pageno);
+        return paging.overPages(reviewList, start, end, pageable, pageno);
     }
 
     //페이징

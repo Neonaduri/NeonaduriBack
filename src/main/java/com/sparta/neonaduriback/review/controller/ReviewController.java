@@ -61,7 +61,7 @@ public class ReviewController {
     @GetMapping("/{postId}/{pageno}")
     public ResponseEntity<ReviewResponseDto> getReviews(@PathVariable(value = "postId") Long postId, @PathVariable(value = "pageno") int pageno, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // reviewService.getReviews(postId, pageno-1, userDetails);
-        Page<ReviewListDto> reviewList = reviewService.getReviews(postId, pageno-1);
+        Page<?> reviewList = reviewService.getReviews(postId, pageno-1);
 
         // islastPage
         boolean islastPage=false;
