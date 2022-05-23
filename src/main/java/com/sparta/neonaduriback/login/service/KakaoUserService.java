@@ -50,26 +50,18 @@ public class KakaoUserService {
     public SocialLoginInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code);
-        System.out.println("카카오서비스에서 받은"+ code);
-        System.out.println("1. 인가 코드로 액세스 토큰 요청");
-        System.out.println("카카오서비스에서" + accessToken);
 
         // 2. 토큰으로 카카오 API 호출
         SocialLoginInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
-        System.out.println("2. 토큰으로 카카오 API 호출");
 
         // 3. 카카오ID로 회원가입 처리
         User kakaoUser = registerKakaoUserIfNeed(kakaoUserInfo);
-        System.out.println("3. 카카오ID로 회원가입 처리");
 
         // 4. 강제 로그인 처리
         Authentication authentication = forceLogin(kakaoUser);
-        System.out.println("4. 강제 로그인 처리");
 
         // 5. response Header에 JWT 토큰 추가
         kakaoUsersAuthorizationInput(authentication, response);
-
-        System.out.println("5. response Header에 JWT 토큰 추가");
 
         return kakaoUserInfo;
 
@@ -134,15 +126,10 @@ public class KakaoUserService {
 
         String userName = jsonNode.get("kakao_account").get("email").asText();
 
-        System.out.println("카카오 서비스에서 로그인할 때 받는 email" + userName);
-
         String nickName = jsonNode.get("properties")
                 .get("nickname").asText();
-        System.out.println("카카오 서비스에서 로그인할 때 받는 닉네임" + nickName);
 
         String profileImgUrl = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
-
-        System.out.println("카카오 토큰에 있는" + "" + kakaouserName + ""+ userName + "" + nickName +  "" + profileImgUrl);
 
         return new SocialLoginInfoDto(userName, nickName, profileImgUrl);
 
@@ -161,8 +148,6 @@ public class KakaoUserService {
             // userName: kakao email
 
             String nickName = kakaoUserInfo.getNickName();
-
-            System.out.println("카카오 서비스에서 회원가입할 때 받는 닉네임" + nickName);
 
             // password: random UUID
             String password = UUID.randomUUID().toString();
