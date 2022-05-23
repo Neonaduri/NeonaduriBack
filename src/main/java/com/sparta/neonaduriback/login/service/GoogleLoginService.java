@@ -63,13 +63,9 @@ public class GoogleLoginService {
 
         // 1. 인가코드로 엑세스토큰 가져오기
         String accessToken = getAccessToken(code);
-        System.out.println("액세스토큰" + accessToken);
 
         // 2. 엑세스토큰으로 유저정보 가져오기
         SocialLoginInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
-        System.out.println("구글 유저 이메일 : " + googleUserInfo.getUserName());
-        System.out.println("구글 유저 닉네임 : " + googleUserInfo.getNickName());
-        System.out.println("구글 유저 프로필이미지 : " + googleUserInfo.getProfileImgUrl());
 
         // 3. 유저확인 & 회원가입
         User foundUser = getUser(googleUserInfo);
@@ -103,9 +99,6 @@ public class GoogleLoginService {
         // POST 요청 보내기
         HttpEntity<MultiValueMap<String, String>> googleToken = new HttpEntity<>(body, headers);
 
-        System.out.println("구글 토큰 + 바디 :"+ googleToken.getBody());
-        System.out.println("구글 토큰 + 헤더 :"+ googleToken.getHeaders());
-
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.exchange(
                 "https://oauth2.googleapis.com/token",
@@ -133,8 +126,6 @@ public class GoogleLoginService {
         String resultJson = restTemplate.getForObject(requestUrl, String.class);
 
         Map<String,String> googleUserInfo = mapper.readValue(resultJson, new TypeReference<Map<String, String>>(){});
-        System.out.println("userinfo");
-        System.out.println(googleUserInfo);
 
         String userName = googleUserInfo.get("email");
         String nickName = googleUserInfo.get("name");
@@ -163,7 +154,6 @@ public class GoogleLoginService {
                     .password(password)
                     .profileImgUrl(profileImgUrl)
                     .build();
-            System.out.println("구글 서비스에서 회원가입할 때 보내는" + "userName " + userName + "nickName " + nickName + profileImgUrl);
             userRepository.save(googoleUser);
         }
         return googoleUser;
@@ -188,7 +178,6 @@ public class GoogleLoginService {
 
     // 5. jwt 토큰 발급
     private void jwtToken(HttpServletResponse response, Authentication authentication) {
-
 
         UserDetailsImpl userDetailsImpl = ((UserDetailsImpl) authentication.getPrincipal());
         String token = JwtTokenUtils.generateJwtToken(userDetailsImpl);
