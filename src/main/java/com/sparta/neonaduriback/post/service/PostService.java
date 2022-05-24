@@ -319,6 +319,56 @@ public class PostService {
         }
     }
 
+//    public PostDto showDetail(Long postId, UserDetailsImpl userDetails) {
+//
+//        Post post = postRepository.findById(postId).orElseThrow(
+//                () -> new IllegalArgumentException("해당 계획이 없습니다.")
+//        );
+//
+//        post.setIslike(userLikeTrueOrNot(userDetails.getUser().getId(), postId));
+//
+//        System.out.println("post.getPostTitle() = " + post.getPostTitle());
+//
+//        Days days = daysRepository.findById(postId).orElseThrow(
+//                ()-> new IllegalArgumentException("해당 일차가 없습니다.")
+//        );
+//
+//        Places places = placesRepository.findById(days.getDayId()).orElseThrow(
+//                () -> new IllegalArgumentException("해당 장소가 없습니다.")
+//        );
+//
+//        PlacesDto placesDto = new PlacesDto(places.getPlaceId(), places.getPlaceName(),places.getPlaceInfoUrl(), places.getCategory(),places.getAddress(),
+//                places.getRoadAddress(),places.getPlaceMemo(), places.getPlanTime(),places.getLat(),places.getLng());
+//
+//        System.out.println("placesDto.getPlaceName() = " + placesDto.getPlaceName());
+//        System.out.println("placesDto.getPlanTime() = " + placesDto.getPlanTime());
+//
+//
+//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), (List<Places>) placesDto);
+//
+//        System.out.println("daysDto.getDateNumber() = " + daysDto.getDateNumber());
+//        System.out.println("daysDto.getPlaces() = " + daysDto.getPlaces());
+//
+//        PostDto postDto = new PostDto(post.getPostId(), post.getPostUUID(), post.getStartDate(), post.getEndDate(),
+//                post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getPostImgUrl(), post.getTheme(),
+//                post.isIslike(), post.getLikeCnt(), post.isIspublic(), post.getViewCnt(), post.getUser(), Collections.singletonList(daysDto));
+//
+//        System.out.println("postDto.getPostTitle() = " + postDto.getPostTitle());
+//        System.out.println("postDto.getUser() = " + postDto.getUser().getNickName());
+//
+//        //전체공개이고
+//        if (post.isIspublic()) {
+//
+//            // 게시글 조회 수 계산
+//            post.setViewCnt(post.getViewCnt() + 1);
+//            postRepository.save(post);
+//
+//            return postDto;
+//            } else {
+//                return null;
+//        }
+//    }
+
     //검색결과 조회
     public Page<?> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
         String postTitle=keyword;

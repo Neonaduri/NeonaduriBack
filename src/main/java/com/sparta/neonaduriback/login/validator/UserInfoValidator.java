@@ -10,8 +10,6 @@ package com.sparta.neonaduriback.login.validator;
  *
  *   수정일     수정자             수정내용
  *  --------   --------    ---------------------------
- *  2022.05.06 오예령       유효성 검사 추가, 아이디 중복 체크
- *  2022.05.07 오예령       유저 정보 조회 return 형태 변경 (리팩토링)
  */
 
 
@@ -19,17 +17,16 @@ import com.sparta.neonaduriback.like.repository.LikeRepository;
 import com.sparta.neonaduriback.login.dto.IsLoginDto;
 import com.sparta.neonaduriback.login.dto.SignupRequestDto;
 import com.sparta.neonaduriback.login.repository.UserRepository;
-import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.repository.PostRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -38,15 +35,11 @@ import java.util.regex.Pattern;
 public class UserInfoValidator {
 
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
 
     @Autowired
-    public UserInfoValidator(UserRepository userRepository, PostRepository postRepository,
-                             LikeRepository likeRepository) {
+    public UserInfoValidator(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.likeRepository = likeRepository;
+
     }
 
     public String getValidMessage(SignupRequestDto signupRequestDto, Errors errors) {
@@ -63,6 +56,8 @@ public class UserInfoValidator {
             return "중복된 아이디가 존재합니다.";
         } else if (signupRequestDto.getPassword().length() < 4) {
             return "비밀번호는 4자리 이상 12자리 미만입니다.";
+        } else if (!signupRequestDto.getPassword().equals(signupRequestDto.getPasswordCheck())) {
+            return "비밀번호가 일치하지 않습니다.";
         } else {
             return "회원가입 성공";
         }
@@ -80,25 +75,17 @@ public class UserInfoValidator {
     }
 
     // 아이디 중복체크
-    public boolean idDuplichk(String userName){
-        return userRepository.findByUserName(userName).isPresent();
+    public ResponseEntity<String> idDuplichk(String userName){
+        if (!userRepository.findByUserName(userName).isPresent()) {
+            return ResponseEntity.status(201).body("201");
+        } return ResponseEntity.status(400).body("400");
     }
 
     //로그인 확인
-    public IsLoginDto isloginCheck(UserDetailsImpl userDetails){
-
-
+    public ResponseEntity<IsLoginDto> isloginCheck(UserDetailsImpl userDetails){
         System.out.println(userDetails.getUser().getUserName());
-        String userName = userDetails.getUsername();
-        String nickName = userDetails.getNickName();
-        String profileImgUrl = userDetails.getProfileImgUrl();
-
-//        Optional<User> user = userRepository.findByUserName(userName);
-        return IsLoginDto.builder()
-                .userName(userName)
-                .nickName(nickName)
-                .profileImgUrl(profileImgUrl)
-                .build();
+        IsLoginDto isLoginDto = new IsLoginDto(userDetails.getUser());
+        return ResponseEntity.status(200).body(isLoginDto);
     }
 
 }

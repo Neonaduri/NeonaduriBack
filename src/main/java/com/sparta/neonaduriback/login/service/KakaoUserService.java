@@ -15,6 +15,8 @@ package com.sparta.neonaduriback.login.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.neonaduriback.common.image.model.Image;
+import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.login.dto.SocialLoginInfoDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
@@ -45,6 +47,7 @@ import java.util.UUID;
 public class KakaoUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
 
     public SocialLoginInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -77,7 +80,7 @@ public class KakaoUserService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", ""); // 리액트
+        body.add("client_id", "2e4e71fc3d3078adc996df889a6eb71a"); // 리액트
 //        body.add("redirect_uri", "http://localhost:3000/user/kakao/callback"); // 리액트 (local)
         body.add("redirect_uri", "https://neonaduri.com/user/kakao/callback"); // 리액트 (서버 배포 후)
         body.add("code", code);
@@ -154,6 +157,9 @@ public class KakaoUserService {
             String encodedPassword = passwordEncoder.encode(password);
 
             String profileImgUrl = kakaoUserInfo.getProfileImgUrl();
+
+            Image image = new Image(profileImgUrl);
+            imageRepository.save(image);
 
             kakaoUser = new User(userName, nickName, encodedPassword, profileImgUrl);
             userRepository.save(kakaoUser);
