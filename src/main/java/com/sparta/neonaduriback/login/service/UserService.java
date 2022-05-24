@@ -5,13 +5,11 @@ package com.sparta.neonaduriback.login.service;
  *
  * @class : UserService
  * @author : 오예령
+ * @since   : 2022.04.30
  * @version : 1.0
  * <p>
  * 수정일     수정자             수정내용
  * --------   --------    ---------------------------
- * 2022.05.03 오예령       아이디 중복검사 및 로그인 정보 조회 기능 추가
- * 2022.05.04 오예령       유저 정보 조회 항목에 email 추가
- * @since : 2022.04.30
  */
 
 
@@ -26,6 +24,7 @@ import com.sparta.neonaduriback.login.validator.UserInfoValidator;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -47,7 +46,7 @@ public class UserService {
 
     //회원가입
     @Transactional
-    public String registerUser(SignupRequestDto signupRequestDto, Errors errors) {
+    public ResponseEntity<String> registerUser(SignupRequestDto signupRequestDto, Errors errors) {
         String message = userInfoValidator.getValidMessage(signupRequestDto, errors);
         if (message.equals("회원가입 성공")) {
             String userName = signupRequestDto.getUserName();
@@ -57,9 +56,9 @@ public class UserService {
             User user = new User(userName, passWordEncode, signupRequestDto);
             //회원정보 저장
             userRepository.save(user);
-            return "회원가입 성공";
+            return ResponseEntity.status(201).body("회원가입 성공");
         } else {
-            return message;
+            return ResponseEntity.status(400).body(message);
         }
     }
 
@@ -68,7 +67,6 @@ public class UserService {
     public void updateUserInfo(MultipartFile multipartFile, String nickName, Long userId) throws IOException {
 
         String profileImgUrl = s3uploader.updateImage(multipartFile, "static", userId);
-
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("회원 정보가 없습니다")
@@ -112,8 +110,7 @@ public class UserService {
 
     // 비밀번호 변경
     @Transactional
-
-    public Boolean updatePassword(PasswordRequestDto requestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<Boolean> updatePassword(PasswordRequestDto requestDto, UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
 
         if (!passWordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
@@ -123,7 +120,8 @@ public class UserService {
 
         user.updateUserPassword(password);
         userRepository.save(user);
-        return true;
+
+        return ResponseEntity.status(201).body(true);
     }
 
     public class EqualPasswordException extends RuntimeException {

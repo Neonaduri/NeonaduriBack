@@ -7,11 +7,8 @@ import com.sparta.neonaduriback.post.service.PostService;
 import com.sparta.neonaduriback.review.dto.MyReviewListDto;
 import com.sparta.neonaduriback.review.service.ReviewService;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
-import com.sparta.neonaduriback.utils.StatusEnum;
-import com.sparta.neonaduriback.utils.StatusMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -128,19 +125,25 @@ public class PostController {
 
     //내가 등록한 여행 계획 삭제
     @DeleteMapping("/user/plans/{postId}")
-    public ResponseEntity<StatusMessage> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<String> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                     @PathVariable("postId") Long postId){
         Long deletedPostId=postService.deletePost(userDetails, postId);
-        if(postId.equals(deletedPostId)){
-            StatusMessage statusMessage=new StatusMessage();
-            statusMessage.setStatus(StatusEnum.OK);
-            statusMessage.setData("삭제가 정상적으로 완료됨");
-            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
-        }else{
-            StatusMessage statusMessage=new StatusMessage();
-            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
-            statusMessage.setData("삭제 실패");
-            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
+//        if(postId.equals(deletedPostId)){
+//            StatusMessage statusMessage=new StatusMessage();
+//            statusMessage.setStatus(StatusEnum.OK);
+//            statusMessage.setData("삭제가 정상적으로 완료됨");
+//            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
+//        }else{
+//            StatusMessage statusMessage=new StatusMessage();
+//            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
+//            statusMessage.setData("삭제 실패");
+//            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
+//        }
+
+        if(postId.equals(deletedPostId)) {
+            return ResponseEntity.status(200).body("삭제가 정상적으로 완료됨");
+        } else {
+            return ResponseEntity.status(400).body("삭제 실패!!");
         }
     }
 
@@ -188,6 +191,4 @@ public class PostController {
     public List<MyReviewListDto> showMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return reviewService.showMyReviews(userDetails);
     }
-
-
 }

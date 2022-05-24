@@ -72,11 +72,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        // h2-console 사용에 대한 허용 (CSRF, FrameOptions 무시)
         web
                 .ignoring()
-                .antMatchers("/h2-console/**")
-                .antMatchers("/");
+                .antMatchers("/h2-console/**","/v3/api-docs","/favicon.ico",
+                        "/swagger-resources/**", "/swagger-ui/", "/webjars/**", "/swagger/**","/swagger-ui/**");
+
     }
 
     @Override
@@ -150,8 +150,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         skipPathList.add("GET,/images/**");
         skipPathList.add("GET,/css/**");
-//        skipPathList.add("POST,/auth/**");
-//        skipPathList.add("GET,/auth/**");
 
         // h2-console 허용
         skipPathList.add("GET,/h2-console/**");

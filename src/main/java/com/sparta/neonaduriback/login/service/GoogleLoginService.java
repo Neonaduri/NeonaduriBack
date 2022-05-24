@@ -91,10 +91,11 @@ public class GoogleLoginService {
         // 바디에 필요한 정보 담기
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 
-        body.add("client_id" , ""); // 리액트
-        body.add("client_secret", "");  // 리액트
+        body.add("client_id" , "68742741278-1598oqkkoch3q3g0oaudc2lahovbsc64.apps.googleusercontent.com"); // 리액트
+        body.add("client_secret", "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");  // 리액트
 
         body.add("code", code);
+
 //        body.add("redirect_uri", "http://localhost:3000/user/google/callback"); // 리액트 (local)
         body.add("redirect_uri", "https://neonaduri.com/user/google/callback"); // 리액트 (서버 배포 후)
         body.add("grant_type", "authorization_code");
