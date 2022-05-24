@@ -2,8 +2,11 @@ package com.sparta.neonaduriback.post.repository;
 
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.post.model.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +29,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByThemeOrderByLikeCntDesc(String theme);
 
     //검색 결과
-    @Query("Select p from Post p where p.postTitle like %:postTitle% or p.location like %:location% or p.theme like %:theme% order by p.modifiedAt desc")
-    List<Post> findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByModifiedAtDesc(String postTitle, String location, String theme);
+//    @Query("Select p from Post p where p.postTitle like %:postTitle% or p.location like %:location% or p.theme like %:theme% order by p.createdAt desc")
+    List<Post> findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(String postTitle, String location, String theme);
 
-    // 상세 조회, 계획 저장 전 삭제
-    Optional<Post> findByPostId(Long postId);
+    Page<Post> findAllByLocationAndIspublicTrue(String location, Pageable pageable);
+
+    //테스트
+    Optional<Post> findByPostUUID(String postUUID);
+
+    Optional<Post> findByUserAndPostUUID(User user, String postUUID);
+
+//    @Query(nativeQuery = true, value = "SELECT a.*, b.*, c.*" +
+//            "FROM places a" +
+//            "         LEFT JOIN days b on a.days_id = b.day_id" +
+//            "         LEFT JOIN post c on b.post_id = c.post_id WHERE c.post_id =:postId order by a.plan_time ASC")
+//
+//    void test(@Param("postId") Long postId);
 }

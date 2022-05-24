@@ -24,7 +24,7 @@ public class Days {
 //    private Post post;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "places")
+    @JoinColumn(name = "DAYS_ID")
     private List<Places> places = new ArrayList<>();
 
     public Days(int dateNumber, List<Places> placesList){

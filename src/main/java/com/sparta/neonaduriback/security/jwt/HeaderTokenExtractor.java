@@ -20,6 +20,7 @@ public class HeaderTokenExtractor {
          * header 값이 비어있거나 또는 HEADER_PREFIX 값보다 짧은 경우
          * 이셉션을(예외)를 던져주어야 합니다.
          */
+        System.out.println("===============jwt 에러 안 났을시 request.getURI:"+request.getRequestURI());
         if (header == null || header.equals("") || header.length() < HEADER_PREFIX.length()) {
             System.out.println("error request : " + request.getRequestURI());
             throw new NoSuchElementException("올바른 JWT 정보가 아닙니다.");

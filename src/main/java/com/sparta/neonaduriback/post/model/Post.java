@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +25,9 @@ public class Post extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
+
+    @Column(nullable = false)
+    private String postUUID;
 
     @Column(nullable = false)
     private String startDate;
@@ -39,7 +44,7 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String location;
 
-    @Column(nullable = true)
+    @Column(nullable = true,length = 500)
     private String postImgUrl;
 
     @Column(nullable = false)
@@ -62,11 +67,12 @@ public class Post extends Timestamped {
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "days")
+    @JoinColumn(name = "POST_ID")
     private List<Days> days = new ArrayList<>();
 
     //방 만들어줄 때 생성자
     public Post(RoomMakeRequestDto roomMakeRequestDto, User user){
+        this.postUUID=makeShortUUID();
         this.startDate=roomMakeRequestDto.getStartDate();
         this.endDate=roomMakeRequestDto.getEndDate();
         this.dateCnt=roomMakeRequestDto.getDateCnt();
@@ -85,6 +91,14 @@ public class Post extends Timestamped {
     //likeCnt 정보 수정
     public void updateLikeCnt(int likeCnt){
         this.likeCnt=likeCnt;
+    }
+
+    //짧은 UUID 생성 메서드
+    public static String makeShortUUID() {
+        UUID uuid = UUID.randomUUID();
+        long l = ByteBuffer.wrap(uuid.toString().getBytes()).getLong();
+        String str = Long.toString(l, Character.MAX_RADIX);
+        return str;
     }
 
 }

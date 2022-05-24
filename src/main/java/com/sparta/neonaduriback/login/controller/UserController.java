@@ -86,7 +86,7 @@ public class UserController {
 
     // 유저프로필 수정
     @PutMapping("/user/mypage")
-    public ResponseEntity<String> updateUserInfo(@RequestParam("profileImgFile") MultipartFile multipartFile,
+    public ResponseEntity<String> updateUserInfo(@RequestParam(value = "profileImgFile") MultipartFile multipartFile,
                                                         @RequestParam String profileImgUrl,
                                                         @RequestParam("nickName") String nickName,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {

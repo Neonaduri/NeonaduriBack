@@ -39,8 +39,8 @@ public class PostController {
     public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
         User user=userDetails.getUser();
-        Long postId=postService.showAll(postRequestDto, user);
-        if(postRequestDto.getPostId().equals(postId)){
+        String postUUID=postService.showAll(postRequestDto, user);
+        if(postRequestDto.getPostUUID().equals(postUUID)){
             return ResponseEntity.status(201).body("201");
         }else{
             return ResponseEntity.status(400).body("400");
@@ -85,6 +85,27 @@ public class PostController {
         //islastPage
         boolean islastPage=false;
         if(postList.getTotalPages()==postList.getNumber()+1){
+            islastPage=true;
+        }
+        PlanPagingDto bestAndLocationPagingDto=new PlanPagingDto(postList,islastPage);
+        return  bestAndLocationPagingDto;
+    }
+
+    //지역별 조회 테스트
+    @GetMapping("/plans/location/{location}/{pageno}/{sortBy}")
+    public PlanPagingDto testLocationPosts(@PathVariable("location") String location,
+                                           @PathVariable("pageno") int pageno,
+                                           @PathVariable("sortBy") String sortBy,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        int page=pageno-1;
+        int size=5;
+        Page<PlanResponseDto> postList=postService.testLocationPosts(location, page,size, sortBy, userDetails);
+        //islastPage
+        boolean islastPage=false;
+        System.out.println(postList.getTotalPages());
+        System.out.println(postList.getTotalElements());
+        if(postList.isLast()){
             islastPage=true;
         }
         PlanPagingDto bestAndLocationPagingDto=new PlanPagingDto(postList,islastPage);
@@ -162,9 +183,9 @@ public class PostController {
     }
 
     //만들어진 방에서 계획 다시 조회하기
-    @GetMapping("/plans/{postId}")
-    public RoomMakeRequestDto getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
+    @GetMapping("/plans/{postUUID}")
+    public RoomMakeRequestDto getPost(@PathVariable("postUUID") String postUUID) {
+        return postService.getPost(postUUID);
     }
 
     //내가 작성한 플랜조회

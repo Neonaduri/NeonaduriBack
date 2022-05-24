@@ -101,19 +101,19 @@ public class UserInfoValidator {
                 .build();
     }
 
-    public int getTotalLike(UserDetailsImpl userDetails) {
-
-        //내가 쓴 게시물 다 조회
-        List<Post> posts=postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
-        int totalLike=0;
-
-        //내가 쓴 게시물이 있다면 찜 엔티티에서 게시물 갯수 카운트 -> 유저들한테 찜받은 갯수를 말함
-        for(Post eachPost: posts){
-            Long postId=eachPost.getPostId();
-            totalLike+=likeRepository.countByPostId(postId);
-        }
-
-        return totalLike;
-    }
+//    public int getTotalLike(UserDetailsImpl userDetails) {
+//
+//        //내가 쓴 게시물 다 조회
+//        List<Post> posts=postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
+//        int totalLike=0;
+//
+//        //내가 쓴 게시물이 있다면 찜 엔티티에서 게시물 갯수 카운트 -> 유저들한테 찜받은 갯수를 말함
+//        for(Post eachPost: posts){
+//            Long postId=eachPost.getPostId();
+//            totalLike+=likeRepository.countByPostId(postId);
+//        }
+//
+//        return totalLike;
+//    }
 
 }

@@ -15,19 +15,13 @@ import com.sparta.neonaduriback.security.UserDetailsImpl;
 import com.sparta.neonaduriback.utils.ImageBundle;
 import com.sparta.neonaduriback.utils.Paging;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -47,15 +41,28 @@ public class PostService {
         Post post= new Post(roomMakeRequestDto, user);
         postRepository.save(post);
         Long postId=post.getPostId();
+        String postUUID=post.getPostUUID();
         roomMakeRequestDto.setPostId(postId);
+        roomMakeRequestDto.setPostUUID(postUUID);
+        roomMakeRequestDto.setUser(user);
         return roomMakeRequestDto;
     }
 
+    // 플랜 계획 조회하기
+    public RoomMakeRequestDto getPost(String postUUID) {
+        System.out.println(postUUID);
+        Post post = postRepository.findByPostUUID(postUUID).orElseThrow(
+                ()-> new IllegalArgumentException("게시물이 존재하지 않습니다.")
+        );
+        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getPostUUID(),post.getStartDate(),
+                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme(), post.getUser());
+        return roomMakeRequestDto;
+    }
     //자랑하기
     @Transactional
-    public Long showAll(PostRequestDto postRequestDto, User user) {
+    public String showAll(PostRequestDto postRequestDto, User user) {
 
-        postRepository.findByUserAndPostId(user, postRequestDto.getPostId()).orElseThrow(
+        postRepository.findByUserAndPostUUID(user, postRequestDto.getPostUUID()).orElseThrow(
                 ()->new IllegalArgumentException("방을 생성한 유저만 여행 계획 저장이 가능합니다.")
         );
 
@@ -66,6 +73,16 @@ public class PostService {
             int dateNumber=i+1;
 
             List<PlaceRequestDto> placeRequestDtoList=dayRequestDtoList.get(i).getPlaces();
+            //위에 리스트를 정렬?
+            Comparator<PlaceRequestDto> comparator = new Comparator<PlaceRequestDto>() {
+                @Override
+                public int compare(PlaceRequestDto a, PlaceRequestDto b) {
+                    //오름차순(뺄셈이 양수일 시)
+                    return a.getPlanTime()- b.getPlanTime();
+                }
+            };
+            Collections.sort(placeRequestDtoList, comparator);
+
             List<Places> placesList=new ArrayList<>();
             //n일차에 대한 n개의 방문 장소 Places entity에 저장
             for(PlaceRequestDto placeRequestDtos:placeRequestDtoList){
@@ -78,14 +95,14 @@ public class PostService {
             daysRepository.save(days);
             daysList.add(days);
         }
-        Post post=postRepository.findById(postRequestDto.getPostId()).orElseThrow(
+        Post post=postRepository.findByPostUUID(postRequestDto.getPostUUID()).orElseThrow(
                 ()->new NullPointerException("해당 계획이 없습니다")
         );
         postRequestDto.setPostImgUrl(imageBundle.searchImage());
         //전체 여행계획 저장
         post.completeSave(postRequestDto,daysList);
         postRepository.save(post);
-        return post.getPostId();
+        return post.getPostUUID();
     }
 
     //내가 찜한 게시물 조회
@@ -216,6 +233,35 @@ public class PostService {
         return paging.overPages(locationList,start,end,pageable,pageno);
     }
 
+    public Page<PlanResponseDto> testLocationPosts(String location, int page, int size, String sortBy, UserDetailsImpl userDetails) {
+
+        Sort.Direction direction= Sort.Direction.DESC;
+        Sort sort= Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
+        Pageable pageable= PageRequest.of(page, size, sort);
+
+        Page<Post> posts=postRepository.findAllByLocationAndIspublicTrue(location, pageable);
+        List<PlanResponseDto> locationList=new ArrayList<>();
+
+        for(Post post: posts){
+            //나만보기 상태이면 추가 안함(jpa로 조건 걸 수 있으나 db에 너무 많은 작업이 가는 것 같아서 자바단에서 실행)
+            if(post.getDays().size()==0) continue;
+            //찜받은 갯수 확인
+//            int likeCnt=countLike(post.getPostId());
+            Long userId=userDetails.getUser().getId();
+            //로그인 유저가 찜한 것인지 여부 확인
+            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
+            //게시물의 reviewCnt 계산
+            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
+
+            PlanResponseDto planResponseDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
+                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
+            locationList.add(planResponseDto);
+        }
+
+        Page<PlanResponseDto> planResponseDtos=new PageImpl<>(locationList, pageable, posts.getTotalElements());
+        return planResponseDtos;
+    }
+
     //bestList, locationList 페이징
     private Pageable getPageableList(int pageno) {
         Sort.Direction direction = Sort.Direction.DESC;
@@ -317,7 +363,7 @@ public class PostService {
         String location=keyword;
         String theme=keyword;
 
-        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByModifiedAtDesc(
+        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(
                 postTitle,location,theme
         );
         List<PlanResponseDto> searchList=new ArrayList<>();
@@ -349,15 +395,7 @@ public class PostService {
     }
 
 
-    // 플랜 계획 조회하기
-    public RoomMakeRequestDto getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
-                ()-> new IllegalArgumentException("게시물이 존재하지 않습니다.")
-        );
-        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getStartDate(),
-                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme());
-        return roomMakeRequestDto;
-    }
+
 //--------------------------------------------------------------------------------------
     // 내가 작성한 플랜조회
     public Page<PostListDto> getMyPosts(int pageno, UserDetailsImpl userDetails) {
@@ -395,7 +433,7 @@ public class PostService {
     //플랜 저장 안함.(새로고침 뒤로가기)
     @Transactional
     public ResponseEntity<String> leavePost(Long postId, User user) {
-        Post post = postRepository.findByPostId(postId).orElse(null);
+        Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return new ResponseEntity<>("없는 게시글입니다.", HttpStatus.BAD_REQUEST);
         }
