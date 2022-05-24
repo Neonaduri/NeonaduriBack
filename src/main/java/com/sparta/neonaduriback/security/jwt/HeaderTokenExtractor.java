@@ -23,7 +23,7 @@ public class HeaderTokenExtractor {
          * 이셉션을(예외)를 던져주어야 합니다.
          */
 
-        log.warn( "=====================================" + request.getRequestURI());
+//        log.warn( "=====================================" + request.getRequestURI());
 
         if (header == null || header.equals("") || header.length() < HEADER_PREFIX.length()) {
             System.out.println("error request : " + request.getRequestURI());
