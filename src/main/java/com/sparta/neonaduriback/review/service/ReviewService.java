@@ -82,8 +82,8 @@ public class ReviewService {
             reviewList.add(reviewListDto);
         }
 
-        int start = pageno * 4;
-        int end =  Math.min((start + 4), reviewList.size());
+        int start = pageno * 8;
+        int end =  Math.min((start + 8), reviewList.size());
 
         return paging.overPages(reviewList, start, end, pageable, pageno);
     }
@@ -92,7 +92,7 @@ public class ReviewService {
     private Pageable getPageable(int pageno) {
         Sort.Direction direction = Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "id");
-        return PageRequest.of(pageno, 4, sort);
+        return PageRequest.of(pageno, 8, sort);
     }
 
     //후기수정(URL)
