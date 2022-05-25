@@ -66,7 +66,6 @@ public class User {
         this.profileImgUrl = profileImgUrl;
     }
 
-
     //회원 프로필 업데이트
     public void update(String profileImgUrl, String nickName){
         this.profileImgUrl=profileImgUrl;

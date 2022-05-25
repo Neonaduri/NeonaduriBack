@@ -147,7 +147,7 @@ public class PostController {
         }
     }
 
-    //검색 결과 조회
+    //검색 결과 조회 => 에러발생 수정하자아아아 (requesetParam으로 dto를 받거나 ModelAttribute로 받는다,,?)
     @GetMapping("/plans/keyword/{keyword}/{pageno}")
     public PlanPagingDto showSearchPosts(@PathVariable("pageno") int pageno, @PathVariable("keyword") String keyword,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
