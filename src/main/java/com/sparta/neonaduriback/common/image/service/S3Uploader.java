@@ -119,11 +119,10 @@ public class S3Uploader {
             }else{
                 String fileName = image.get().getFilename();
                 System.out.println(fileName);
-                //버켓에 없는 파일네임을 지우라하면 에러가 날까? -> 난다..
-                amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
+
+                deleteImage(fileName);
                 imageRepository.deleteByFilename(fileName);
             }
-//        }
         return upload(uploadFile, dirName);
     }
 
@@ -156,6 +155,7 @@ public class S3Uploader {
         return Optional.empty();
     }
 
+    // S3에 올라갔던 사진 삭제
     public void deleteImage(String fileName){
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }

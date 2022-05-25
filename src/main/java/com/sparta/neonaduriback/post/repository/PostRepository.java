@@ -1,6 +1,7 @@
 package com.sparta.neonaduriback.post.repository;
 
 import com.sparta.neonaduriback.login.model.User;
+import com.sparta.neonaduriback.post.dto.PostDto;
 import com.sparta.neonaduriback.post.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,6 +34,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByPostUUID(String postUUID);
 
     void deleteByPostUUID(String postUUID);
+
+    List<Post> findAllByUser(User user);
 
 //    Optional<Post> findByIdAndPlanTimeDesc(Long postId, int planTime);
 

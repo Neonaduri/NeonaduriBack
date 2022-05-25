@@ -3,6 +3,7 @@ package com.sparta.neonaduriback.post.model;
 import com.sparta.neonaduriback.common.model.Timestamped;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.post.days.model.Days;
+import com.sparta.neonaduriback.post.dto.PostDto;
 import com.sparta.neonaduriback.post.dto.PostRequestDto;
 import com.sparta.neonaduriback.post.dto.RoomMakeRequestDto;
 import com.sparta.neonaduriback.post.places.Places;
@@ -19,8 +20,8 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
+@Setter
 @Entity
 public class Post extends Timestamped {
     @Id
@@ -101,5 +102,10 @@ public class Post extends Timestamped {
         this.likeCnt=likeCnt;
     }
 
+    // 계정 비활성화
+    public void withdrawal(PostDto postDto) {
+        this.postId = postDto.getPostId();
+        this.user = postDto.getUser();
+    }
 }
 
