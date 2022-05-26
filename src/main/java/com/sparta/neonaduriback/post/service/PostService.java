@@ -344,7 +344,7 @@ public class PostService {
 //        System.out.println("placesDto.getPlanTime() = " + placesDto.getPlanTime());
 //
 //
-//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), (List<Places>) placesDto);
+//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), List<PlacesDto>);
 //
 //        System.out.println("daysDto.getDateNumber() = " + daysDto.getDateNumber());
 //        System.out.println("daysDto.getPlaces() = " + daysDto.getPlaces());

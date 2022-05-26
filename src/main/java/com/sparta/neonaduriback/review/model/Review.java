@@ -15,13 +15,16 @@ package com.sparta.neonaduriback.review.model;
 
 import com.sparta.neonaduriback.common.model.Timestamped;
 import com.sparta.neonaduriback.login.model.User;
+import com.sparta.neonaduriback.review.dto.ReviewWithdrawalDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class Review extends Timestamped {
     @Id
