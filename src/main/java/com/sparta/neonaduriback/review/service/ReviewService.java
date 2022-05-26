@@ -64,7 +64,7 @@ public class ReviewService {
     }
 
     // 후기 조회
-    public Page<ReviewListDto> getReviews(Long postId, int pageno) {
+    public Page<?> getReviews(Long postId, int pageno) {
 
         // 후기 list 빈 배열 선언
         List<ReviewListDto> reviewList = new ArrayList<>();
@@ -82,17 +82,17 @@ public class ReviewService {
             reviewList.add(reviewListDto);
         }
 
-        int start = pageno * 4;
-        int end =  Math.min((start + 4), reviewList.size());
+        int start = pageno * 8;
+        int end =  Math.min((start + 8), reviewList.size());
 
-        return paging.overPages3(reviewList, start, end, pageable, pageno);
+        return paging.overPages(reviewList, start, end, pageable, pageno);
     }
 
     //페이징
     private Pageable getPageable(int pageno) {
         Sort.Direction direction = Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "id");
-        return PageRequest.of(pageno, 4, sort);
+        return PageRequest.of(pageno, 8, sort);
     }
 
     //후기수정(URL)
@@ -102,7 +102,7 @@ public class ReviewService {
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 리뷰가 없습니다")
         );
-        if(review.getUser().getId()!=userDetails.getUser().getId()){
+        if(!review.getUser().getId().equals(userDetails.getUser().getId())){
             throw new IllegalArgumentException("리뷰 작성자만 수정이 가능합니다");
         }
         //이미지 유알엘도 없다 -> 사진도 지운다
@@ -125,7 +125,7 @@ public class ReviewService {
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()->new IllegalArgumentException("해당 리뷰가 없습니다")
         );
-        if(review.getUser().getId()!=userDetails.getUser().getId()){
+        if(!review.getUser().getId().equals(userDetails.getUser().getId())){
             throw new IllegalArgumentException("리뷰 작성자만 수정이 가능합니다");
         }
         String reviewImgUrl=s3Uploader.updateReviewImage(multipartFile,"static",reviewId);

@@ -12,16 +12,19 @@ package com.sparta.neonaduriback.login.dto;
  *  --------   --------    ---------------------------
  */
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.sparta.neonaduriback.login.model.User;
+import lombok.*;
 
 @Getter
 @Setter
-@Builder
 public class IsLoginDto {
     private String userName;
     private String nickName;
     private String profileImgUrl;
 
+    public IsLoginDto(User user) {
+        this.userName = user.getUserName();
+        this.nickName = user.getNickName();
+        this.profileImgUrl = user.getProfileImgUrl();
+    }
 }

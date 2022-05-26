@@ -34,6 +34,13 @@ public class PostController {
         return ResponseEntity.status(201).body(postService.makeRoom(roomMakeRequestDto, user));
     }
 
+    //만들어진 방에서 계획 다시 조회하기
+    @GetMapping("/plans/{postUUID}")
+    public RoomMakeRequestDto getPost(@PathVariable String postUUID) {
+        return postService.getPost(postUUID);
+    }
+
+
     //자랑하기, 나만보기 저장
     @PutMapping("/plans/save")
     public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
@@ -116,7 +123,7 @@ public class PostController {
     @GetMapping("/plans/theme/{theme}/{pageno}")
     public PlanPagingDto showThemePosts(@PathVariable("theme") String theme, @PathVariable("pageno") int pageno,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
-        Page<PlanResponseDto> postList=postService.showThemePosts(theme,pageno-1,userDetails);
+        Page<?> postList=postService.showThemePosts(theme,pageno-1,userDetails);
 
         //islastPage
         boolean islastPage=false;
@@ -142,19 +149,25 @@ public class PostController {
 
     //내가 등록한 여행 계획 삭제
     @DeleteMapping("/user/plans/{postId}")
-    public ResponseEntity<StatusMessage> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<String> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                     @PathVariable("postId") Long postId){
         Long deletedPostId=postService.deletePost(userDetails, postId);
-        if(postId==deletedPostId){
-            StatusMessage statusMessage=new StatusMessage();
-            statusMessage.setStatus(StatusEnum.OK);
-            statusMessage.setData("삭제가 정상적으로 완료됨");
-            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
-        }else{
-            StatusMessage statusMessage=new StatusMessage();
-            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
-            statusMessage.setData("삭제 실패");
-            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
+//        if(postId.equals(deletedPostId)){
+//            StatusMessage statusMessage=new StatusMessage();
+//            statusMessage.setStatus(StatusEnum.OK);
+//            statusMessage.setData("삭제가 정상적으로 완료됨");
+//            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
+//        }else{
+//            StatusMessage statusMessage=new StatusMessage();
+//            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
+//            statusMessage.setData("삭제 실패");
+//            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
+//        }
+
+        if(postId.equals(deletedPostId)) {
+            return ResponseEntity.status(200).body("삭제가 정상적으로 완료됨");
+        } else {
+            return ResponseEntity.status(400).body("삭제 실패!!");
         }
     }
 
@@ -163,7 +176,7 @@ public class PostController {
     public PlanPagingDto showSearchPosts(@PathVariable("pageno") int pageno, @PathVariable("keyword") String keyword,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         System.out.println("키워드:"+keyword);
-        Page<PlanResponseDto> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
+        Page<?> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
 
         //islastPage
         boolean islastPage=false;
@@ -175,25 +188,21 @@ public class PostController {
     }
 
     //플랜 저장 안함.(새로고침 뒤로가기)
-    @DeleteMapping("/plans/{postId}")
-    public ResponseEntity<String> leavePost(@PathVariable Long postId,
+    @DeleteMapping("/plans/{postUUID}")
+    public ResponseEntity<String> leavePost(@PathVariable String postUUID,
                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
-        return postService.leavePost(postId, user);
+        return postService.leavePost(postUUID, user);
     }
 
-    //만들어진 방에서 계획 다시 조회하기
-    @GetMapping("/plans/{postUUID}")
-    public RoomMakeRequestDto getPost(@PathVariable("postUUID") String postUUID) {
-        return postService.getPost(postUUID);
-    }
+
 
     //내가 작성한 플랜조회
     @GetMapping("/user/plans/{pageno}")
     public PlanPagingDto getMyPost(@PathVariable("pageno") int pageno,
                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        Page<PostListDto> myplanList = postService.getMyPosts(pageno-1,userDetails);
+        Page<?> myplanList = postService.getMyPosts(pageno-1,userDetails);
 
         boolean islastPage = false;
         if ( myplanList.getTotalPages() == myplanList.getNumber()+1){

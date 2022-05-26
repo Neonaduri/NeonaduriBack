@@ -23,6 +23,7 @@ import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.repository.PostRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -38,15 +39,11 @@ import java.util.regex.Pattern;
 public class UserInfoValidator {
 
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
 
     @Autowired
-    public UserInfoValidator(UserRepository userRepository, PostRepository postRepository,
-                             LikeRepository likeRepository) {
+    public UserInfoValidator(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.likeRepository = likeRepository;
+
     }
 
     public String getValidMessage(SignupRequestDto signupRequestDto, Errors errors) {
@@ -63,6 +60,8 @@ public class UserInfoValidator {
             return "중복된 아이디가 존재합니다.";
         } else if (signupRequestDto.getPassword().length() < 4) {
             return "비밀번호는 4자리 이상 12자리 미만입니다.";
+        } else if (!signupRequestDto.getPassword().equals(signupRequestDto.getPasswordCheck())) {
+            return "비밀번호가 일치하지 않습니다.";
         } else {
             return "회원가입 성공";
         }
@@ -80,40 +79,17 @@ public class UserInfoValidator {
     }
 
     // 아이디 중복체크
-    public boolean idDuplichk(String userName){
-        return userRepository.findByUserName(userName).isPresent();
+    public ResponseEntity<String> idDuplichk(String userName){
+        if (!userRepository.findByUserName(userName).isPresent()) {
+            return ResponseEntity.status(201).body("201");
+        } return ResponseEntity.status(400).body("400");
     }
 
     //로그인 확인
-    public IsLoginDto isloginCheck(UserDetailsImpl userDetails){
-
-
+    public ResponseEntity<IsLoginDto> isloginCheck(UserDetailsImpl userDetails){
         System.out.println(userDetails.getUser().getUserName());
-        String userName = userDetails.getUsername();
-        String nickName = userDetails.getNickName();
-        String profileImgUrl = userDetails.getProfileImgUrl();
-
-//        Optional<User> user = userRepository.findByUserName(userName);
-        return IsLoginDto.builder()
-                .userName(userName)
-                .nickName(nickName)
-                .profileImgUrl(profileImgUrl)
-                .build();
+        IsLoginDto isLoginDto = new IsLoginDto(userDetails.getUser());
+        return ResponseEntity.status(200).body(isLoginDto);
     }
-
-//    public int getTotalLike(UserDetailsImpl userDetails) {
-//
-//        //내가 쓴 게시물 다 조회
-//        List<Post> posts=postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
-//        int totalLike=0;
-//
-//        //내가 쓴 게시물이 있다면 찜 엔티티에서 게시물 갯수 카운트 -> 유저들한테 찜받은 갯수를 말함
-//        for(Post eachPost: posts){
-//            Long postId=eachPost.getPostId();
-//            totalLike+=likeRepository.countByPostId(postId);
-//        }
-//
-//        return totalLike;
-//    }
 
 }

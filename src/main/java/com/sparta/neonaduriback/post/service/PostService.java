@@ -58,6 +58,7 @@ public class PostService {
                 post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme(), post.getUser());
         return roomMakeRequestDto;
     }
+
     //자랑하기
     @Transactional
     public String showAll(PostRequestDto postRequestDto, User user) {
@@ -150,7 +151,7 @@ public class PostService {
     public int getTotalLike(UserDetailsImpl userDetails) {
 
         //내가 쓴 게시물 다 조회
-        List<Post> posts=postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
+        List<Post> posts=postRepository.findAllByUserOrderByCreatedAtDesc(userDetails.getUser());
         int totalLike=0;
 
         //내가 쓴 게시물이 있다면 찜 엔티티에서 게시물 갯수 카운트 -> 유저들한테 찜받은 갯수를 말함
@@ -277,7 +278,7 @@ public class PostService {
     }
 
     //테마별 검색조회(8개)
-    public Page<PlanResponseDto> showThemePosts(String theme, int pageno, UserDetailsImpl userDetails) {
+    public Page<?> showThemePosts(String theme, int pageno, UserDetailsImpl userDetails) {
 
         List<Post> themePostList=postRepository.findAllByThemeOrderByLikeCntDesc(theme);
 
@@ -308,7 +309,7 @@ public class PostService {
         int start=pageno*8;
         int end=Math.min((start+8), themeList.size());
 
-        return paging.overPagesCheck(themeList,start,end,pageable,pageno);
+        return paging.overPages(themeList,start,end,pageable,pageno);
     }
 
     //게시물 상세조회
@@ -341,24 +342,58 @@ public class PostService {
             }
         }
     }
-
-    @Transactional
-    //여행 게시물 삭제
-    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
-        Post post=postRepository.findById(postId).orElseThrow(
-                ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
-        );
-        if(post.getUser().getId()!=userDetails.getUser().getId()){
-            throw new IllegalArgumentException("게시물 작성자만 삭제가 가능합니다");
-        }
-        reviewRepository.deleteAllByPostId(postId);
-        likeRepository.deleteAllByPostId(postId);
-        postRepository.deleteById(postId);
-        return postId;
-    }
+//    public PostDto showDetail(Long postId, UserDetailsImpl userDetails) {
+//
+//        Post post = postRepository.findById(postId).orElseThrow(
+//                () -> new IllegalArgumentException("해당 계획이 없습니다.")
+//        );
+//
+//        post.setIslike(userLikeTrueOrNot(userDetails.getUser().getId(), postId));
+//
+//        System.out.println("post.getPostTitle() = " + post.getPostTitle());
+//
+//        Days days = daysRepository.findById(postId).orElseThrow(
+//                ()-> new IllegalArgumentException("해당 일차가 없습니다.")
+//        );
+//
+//        Places places = placesRepository.findById(days.getDayId()).orElseThrow(
+//                () -> new IllegalArgumentException("해당 장소가 없습니다.")
+//        );
+//
+//        PlacesDto placesDto = new PlacesDto(places.getPlaceId(), places.getPlaceName(),places.getPlaceInfoUrl(), places.getCategory(),places.getAddress(),
+//                places.getRoadAddress(),places.getPlaceMemo(), places.getPlanTime(),places.getLat(),places.getLng());
+//
+//        System.out.println("placesDto.getPlaceName() = " + placesDto.getPlaceName());
+//        System.out.println("placesDto.getPlanTime() = " + placesDto.getPlanTime());
+//
+//
+//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), (List<Places>) placesDto);
+//
+//        System.out.println("daysDto.getDateNumber() = " + daysDto.getDateNumber());
+//        System.out.println("daysDto.getPlaces() = " + daysDto.getPlaces());
+//
+//        PostDto postDto = new PostDto(post.getPostId(), post.getPostUUID(), post.getStartDate(), post.getEndDate(),
+//                post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getPostImgUrl(), post.getTheme(),
+//                post.isIslike(), post.getLikeCnt(), post.isIspublic(), post.getViewCnt(), post.getUser(), Collections.singletonList(daysDto));
+//
+//        System.out.println("postDto.getPostTitle() = " + postDto.getPostTitle());
+//        System.out.println("postDto.getUser() = " + postDto.getUser().getNickName());
+//
+//        //전체공개이고
+//        if (post.isIspublic()) {
+//
+//            // 게시글 조회 수 계산
+//            post.setViewCnt(post.getViewCnt() + 1);
+//            postRepository.save(post);
+//
+//            return postDto;
+//            } else {
+//                return null;
+//        }
+//    }
 
     //검색결과 조회
-    public Page<PlanResponseDto> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
+    public Page<?> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
         String postTitle=keyword;
         String location=keyword;
         String theme=keyword;
@@ -391,17 +426,15 @@ public class PostService {
         int start=pageno*8;
         int end=Math.min((start+8), searchList.size());
 
-        return paging.overPagesCheck(searchList,start,end,pageable,pageno);
+        return paging.overPages(searchList,start,end,pageable,pageno);
     }
-
-
 
 //--------------------------------------------------------------------------------------
     // 내가 작성한 플랜조회
-    public Page<PostListDto> getMyPosts(int pageno, UserDetailsImpl userDetails) {
+    public Page<?> getMyPosts(int pageno, UserDetailsImpl userDetails) {
 
         // 유저가 작성한 글 조회
-        List<Post> posts = postRepository.findAllByUserOrderByModifiedAtDesc(userDetails.getUser());
+        List<Post> posts = postRepository.findAllByUserOrderByCreatedAtDesc(userDetails.getUser());
 
         Pageable pageable = getPageableList5(pageno);
 
@@ -426,21 +459,36 @@ public class PostService {
         int start = pageno * 5;
         int end = Math.min((start + 5), myplanList.size());
 
-        return paging.overPages2(myplanList, start, end, pageable, pageno);
+        return paging.overPages(myplanList, start, end, pageable, pageno);
     }
 
 
     //플랜 저장 안함.(새로고침 뒤로가기)
     @Transactional
-    public ResponseEntity<String> leavePost(Long postId, User user) {
-        Post post = postRepository.findById(postId).orElse(null);
+    public ResponseEntity<String> leavePost(String postUUID, User user) {
+        Post post = postRepository.findByPostUUID(postUUID).orElse(null);
         if (post == null) {
             return new ResponseEntity<>("없는 게시글입니다.", HttpStatus.BAD_REQUEST);
         }
         if (!Objects.equals(post.getUser().getUserName(), user.getUserName())) {
             return new ResponseEntity<>("없는 사용자이거나 다른 사용자의 게시글입니다.", HttpStatus.BAD_REQUEST);
         }
-        postRepository.deleteById(postId);
+        postRepository.deleteByPostUUID(postUUID);
         return new ResponseEntity<>("삭제 완료.",HttpStatus.OK);
+    }
+
+    // 여행 게시물 삭제
+    @Transactional
+    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
+        Post post=postRepository.findById(postId).orElseThrow(
+                ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
+        );
+        if(!post.getUser().getId().equals(userDetails.getUser().getId())){
+            throw new IllegalArgumentException("게시물 작성자만 삭제가 가능합니다");
+        }
+        reviewRepository.deleteAllByPostId(postId);
+        likeRepository.deleteAllByPostId(postId);
+        postRepository.deleteById(postId);
+        return postId;
     }
 }

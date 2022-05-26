@@ -15,6 +15,8 @@ package com.sparta.neonaduriback.login.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.neonaduriback.common.image.model.Image;
+import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.login.dto.SocialLoginInfoDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
@@ -45,31 +47,24 @@ import java.util.UUID;
 public class KakaoUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
 
     public SocialLoginInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code);
-        System.out.println("카카오서비스에서 받은"+ code);
-        System.out.println("1. 인가 코드로 액세스 토큰 요청");
-        System.out.println("카카오서비스에서" + accessToken);
 
         // 2. 토큰으로 카카오 API 호출
         SocialLoginInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
-        System.out.println("2. 토큰으로 카카오 API 호출");
 
         // 3. 카카오ID로 회원가입 처리
         User kakaoUser = registerKakaoUserIfNeed(kakaoUserInfo);
-        System.out.println("3. 카카오ID로 회원가입 처리");
 
         // 4. 강제 로그인 처리
         Authentication authentication = forceLogin(kakaoUser);
-        System.out.println("4. 강제 로그인 처리");
 
         // 5. response Header에 JWT 토큰 추가
         kakaoUsersAuthorizationInput(authentication, response);
-
-        System.out.println("5. response Header에 JWT 토큰 추가");
 
         return kakaoUserInfo;
 
@@ -85,7 +80,7 @@ public class KakaoUserService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", ""); // 리액트
+        body.add("client_id", "2e4e71fc3d3078adc996df889a6eb71a"); // 리액트
 //        body.add("redirect_uri", "http://localhost:3000/user/kakao/callback"); // 리액트 (local)
         body.add("redirect_uri", "https://neonaduri.com/user/kakao/callback"); // 리액트 (서버 배포 후)
         body.add("code", code);
@@ -134,15 +129,10 @@ public class KakaoUserService {
 
         String userName = jsonNode.get("kakao_account").get("email").asText();
 
-        System.out.println("카카오 서비스에서 로그인할 때 받는 email" + userName);
-
         String nickName = jsonNode.get("properties")
                 .get("nickname").asText();
-        System.out.println("카카오 서비스에서 로그인할 때 받는 닉네임" + nickName);
 
         String profileImgUrl = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
-
-        System.out.println("카카오 토큰에 있는" + "" + kakaouserName + ""+ userName + "" + nickName +  "" + profileImgUrl);
 
         return new SocialLoginInfoDto(userName, nickName, profileImgUrl);
 
@@ -162,13 +152,14 @@ public class KakaoUserService {
 
             String nickName = kakaoUserInfo.getNickName();
 
-            System.out.println("카카오 서비스에서 회원가입할 때 받는 닉네임" + nickName);
-
             // password: random UUID
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
             String profileImgUrl = kakaoUserInfo.getProfileImgUrl();
+
+            Image image = new Image(profileImgUrl);
+            imageRepository.save(image);
 
             kakaoUser = new User(userName, nickName, encodedPassword, profileImgUrl);
             userRepository.save(kakaoUser);

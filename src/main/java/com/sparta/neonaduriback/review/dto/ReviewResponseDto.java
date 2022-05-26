@@ -9,12 +9,12 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class ReviewResponseDto {
-    private List<ReviewListDto> reviewList;
+    private List<?> reviewList;
     private int totalPage;
     private int totalElements;
     boolean islastPage;
 
-    public ReviewResponseDto(Page<ReviewListDto> reviewList, boolean islastPage) {
+    public ReviewResponseDto(Page<?> reviewList, boolean islastPage) {
         this.reviewList = reviewList.getContent();
         this.totalPage = reviewList.getTotalPages();
         this.totalElements = (int)reviewList.getTotalElements();

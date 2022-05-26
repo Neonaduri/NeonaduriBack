@@ -3,11 +3,9 @@ buildscript {
         queryDslVersion = "5.0.0"
     }
 }
-
 plugins {
     id 'org.springframework.boot' version '2.6.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    //Querydsl
     id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
     id 'java'
 }
@@ -75,18 +73,17 @@ dependencies {
     // Jasypt
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
 
-    // QueryDSL
+    //swagger
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+
+    //Querydsl
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 }
 
-
-
 tasks.named('test') {
     useJUnitPlatform()
 }
-
-// QueryDSL
 def querydslDir = "$buildDir/generated/querydsl"
 
 querydsl {
