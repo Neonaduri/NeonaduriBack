@@ -50,7 +50,8 @@ public class ReviewController {
             return reviewService.createReviewOnlyContents(postId, reviewContetns, userDetails.getUser());
 
         }else{
-            String reviewImgUrl = s3Uploader.upload(multipartFile, "static");
+            Long userId = userDetails.getUser().getId();
+            String reviewImgUrl = s3Uploader.upload(multipartFile, "static", userId);
 
             ReviewRequestDto reviewRequestDto = new ReviewRequestDto(reviewContetns, reviewImgUrl, User.builder().build());
             return reviewService.createReview(postId, reviewRequestDto, userDetails.getUser());
@@ -101,12 +102,6 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
                                                @AuthenticationPrincipal UserDetailsImpl userDetails){
-        Long deletedId=reviewService.deleteReview(reviewId,userDetails);
-        if(reviewId.equals(deletedId)){
-            return ResponseEntity.status(200).body("200");
-        }else{
-            return  ResponseEntity.status(400).body("400");
-        }
+        return reviewService.deleteReview(reviewId,userDetails);
     }
-
 }

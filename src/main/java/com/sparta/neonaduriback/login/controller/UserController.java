@@ -89,7 +89,9 @@ public class UserController {
             userService.deleteProfileImg(profileImgUrl,nickName,userId);
         } else {
             //사용자가 이미지를 수정함
+            System.out.println("1111111111111111111111111111111");
             userService.updateUserInfo(multipartFile, nickName, userId);
+
         }
         return ResponseEntity.status(201).body("201");
     }

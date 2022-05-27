@@ -83,7 +83,9 @@ public class UserService {
     @Transactional
     public void updateUserInfo(MultipartFile multipartFile, String nickName, Long userId) throws IOException {
 
+        System.out.println("UserService에서 받는 userId = " + userId);
         String profileImgUrl = s3uploader.updateImage(multipartFile, "static", userId);
+        System.out.println("UserService에서 받는 profileImgUrl = " + profileImgUrl);
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("회원 정보가 없습니다")
@@ -102,11 +104,12 @@ public class UserService {
                     () -> new IllegalArgumentException("해당 유저가 없습니다")
             );
 
-            Image image =imageRepository.findByImageUrl(user.getProfileImgUrl()).orElse(null);
+            Image image =imageRepository.findByImageUrlAndUserId(user.getProfileImgUrl(), userId).orElse(null);
+            
             if(image==null){
                 log.info("기본 사진이거나 유저의 기존 프로필 사진을 찾을 수 없습니다.");
             }else{
-                imageRepository.deleteByFilename(image.getFilename());
+                imageRepository.deleteByUserId(userId);
                 s3uploader.deleteImage(image.getFilename());
                 //디폴트 이미지
                 profileImgUrl = "https://seunghodev-bucket.s3.ap-northeast-2.amazonaws.com/default/Group+1.png";
@@ -140,13 +143,6 @@ public class UserService {
 
         return ResponseEntity.status(201).body(true);
     }
-//
-//    public class EqualPasswordException extends RuntimeException {
-//
-//        public EqualPasswordException(String message) {
-//            super(message);
-//        }
-//    }
 
     // 회원 탈퇴
     @Transactional
@@ -172,15 +168,14 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 유저가 없습니다")
         );
-        String imageUrl = user.getProfileImgUrl();
-        
-        Optional<Image> image = imageRepository.findByImageUrl(imageUrl);
+
+        Optional<Image> image = imageRepository.findByUserId(userId);
 
         if(image.isPresent()){
             String fileName = image.get().getFilename();
 
             s3uploader.deleteImage(fileName);
-            imageRepository.deleteByFilename(fileName);
+            imageRepository.deleteByUserId(userId);
         }
 
         // 탈퇴한 유저의 게시글 비활성화

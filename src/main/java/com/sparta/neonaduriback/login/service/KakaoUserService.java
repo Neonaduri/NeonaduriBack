@@ -39,6 +39,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -158,11 +159,11 @@ public class KakaoUserService {
 
             String profileImgUrl = kakaoUserInfo.getProfileImgUrl();
 
-            Image image = new Image(profileImgUrl);
-            imageRepository.save(image);
-
             kakaoUser = new User(userName, nickName, encodedPassword, profileImgUrl);
             userRepository.save(kakaoUser);
+
+            Image image = new Image(profileImgUrl, kakaoUser.getId());
+            imageRepository.save(image);
 
         }
         return kakaoUser;
