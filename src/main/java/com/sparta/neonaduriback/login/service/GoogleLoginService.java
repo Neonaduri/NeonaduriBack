@@ -161,7 +161,7 @@ public class GoogleLoginService {
             userRepository.save(googoleUser);
         }
 
-        Image image = new Image(profileImgUrl);
+        Image image = new Image(profileImgUrl, googoleUser.getId());
         imageRepository.save(image);
 
         return googoleUser;
