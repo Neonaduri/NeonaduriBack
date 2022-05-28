@@ -162,8 +162,6 @@ public class KakaoUserService {
             kakaoUser = new User(userName, nickName, encodedPassword, profileImgUrl);
             userRepository.save(kakaoUser);
 
-            System.out.println(kakaoUser.getId());
-
             Image image = new Image(profileImgUrl, kakaoUser.getId());
             imageRepository.save(image);
 
