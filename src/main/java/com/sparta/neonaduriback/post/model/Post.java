@@ -3,8 +3,10 @@ package com.sparta.neonaduriback.post.model;
 import com.sparta.neonaduriback.common.model.Timestamped;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.post.days.model.Days;
+import com.sparta.neonaduriback.post.dto.PostDto;
 import com.sparta.neonaduriback.post.dto.PostRequestDto;
 import com.sparta.neonaduriback.post.dto.RoomMakeRequestDto;
+import com.sparta.neonaduriback.post.places.Places;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +20,8 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
+@Setter
 @Entity
 public class Post extends Timestamped {
     @Id
@@ -44,7 +46,7 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String location;
 
-    @Column(nullable = true,length = 500)
+    @Column(nullable = true, length = 500)
     private String postImgUrl;
 
     @Column(nullable = false)
@@ -70,6 +72,13 @@ public class Post extends Timestamped {
     @JoinColumn(name = "POST_ID")
     private List<Days> days = new ArrayList<>();
 
+    public static String makeShortUUID() {
+        UUID uuid = UUID.randomUUID();
+        long l = ByteBuffer.wrap(uuid.toString().getBytes()).getLong();
+        String str = Long.toString(l, Character.MAX_RADIX);
+        return str;
+    }
+
     //방 만들어줄 때 생성자
     public Post(RoomMakeRequestDto roomMakeRequestDto, User user){
         this.postUUID=makeShortUUID();
@@ -93,13 +102,10 @@ public class Post extends Timestamped {
         this.likeCnt=likeCnt;
     }
 
-    //짧은 UUID 생성 메서드
-    public static String makeShortUUID() {
-        UUID uuid = UUID.randomUUID();
-        long l = ByteBuffer.wrap(uuid.toString().getBytes()).getLong();
-        String str = Long.toString(l, Character.MAX_RADIX);
-        return str;
+    // 계정 비활성화
+    public void withdrawal(PostDto postDto) {
+        this.postId = postDto.getPostId();
+        this.user = postDto.getUser();
     }
-
 }
 

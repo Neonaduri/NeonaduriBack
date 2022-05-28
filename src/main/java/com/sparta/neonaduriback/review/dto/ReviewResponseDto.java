@@ -1,23 +1,29 @@
 package com.sparta.neonaduriback.review.dto;
 
+import com.sparta.neonaduriback.login.model.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReviewResponseDto {
-    private List<?> reviewList;
-    private int totalPage;
-    private int totalElements;
-    boolean islastPage;
+    private Long reveiwId;
+    private String reviewContents;
+    private String reviewImgUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private User user;
 
-    public ReviewResponseDto(Page<?> reviewList, boolean islastPage) {
-        this.reviewList = reviewList.getContent();
-        this.totalPage = reviewList.getTotalPages();
-        this.totalElements = (int)reviewList.getTotalElements();
-        this.islastPage = islastPage;
+    // 후기 내용만 등록
+    public ReviewResponseDto(Long id, String reviewContetns, LocalDateTime createdAt, LocalDateTime modifiedAt, User user) {
+        this.reveiwId = id;
+        this.reviewContents = reviewContetns;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+        this.user = user;
     }
 }

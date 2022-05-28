@@ -10,21 +10,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class PostServiceTest {
-
-    private final PostRepository postRepository;
-
-    @Autowired
-    public PostServiceTest(PostRepository postRepository){
-        this.postRepository=postRepository;
-    }
-
-    @Test
-    void showTheme(){
-        String theme="맛집";
-        List<Post> postList=postRepository.findAllByThemeOrderByLikeCntDesc(theme);
-
-    }
-
-}
+//@SpringBootTest
+//class PostServiceTest {
+//
+//    private final PostRepository postRepository;
+//
+//    @Autowired
+//    public PostServiceTest(PostRepository postRepository){
+//        this.postRepository=postRepository;
+//    }
+//
+//    @Test
+//    void showTheme(){
+//        String theme="맛집";
+//        List<Post> postList=postRepository.findAllByThemeOrderByLikeCntDesc(theme);
+//
+//    }
+//
+//}

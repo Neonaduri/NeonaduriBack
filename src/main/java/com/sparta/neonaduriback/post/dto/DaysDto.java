@@ -20,9 +20,15 @@ public class DaysDto {
 //    private Post post;
     private List<Places> places = new ArrayList<>();
 
-    public DaysDto(Long dayId, int dateNumber, List<Places> places) {
-        this.dayId = dayId;
-        this.dateNumber = dateNumber;
-        this.places = places;
-    }
+//    public DaysDto(Long dayId, int dateNumber, List<Places> places) {
+//        this.dayId = dayId;
+//        this.dateNumber = dateNumber;
+//        this.places = places;
+//    }
+//
+//    public DaysDto(Long dayId, int dateNumber, List<PlacesDto> placesDto) {
+//        this.dayId = dayId;
+//        this.dateNumber = dateNumber;
+//        this.places = placesDto;
+//    }
 }

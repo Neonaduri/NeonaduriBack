@@ -21,12 +21,18 @@ public class Image {
     @Column(nullable = false, length = 500)
     private String imageUrl;
 
-    public Image(String filename, String imageUrl) {
+    @Column(nullable = true)
+    private Long userId;
+
+    public Image(String filename, String imageUrl, Long userId) {
         this.filename = filename;
         this.imageUrl = imageUrl;
+        this.userId = userId;
     }
-    public Image(String profileImgUrl) {
+    //소셜 로그인 가입 시 이미지 repo 등록
+    public Image(String profileImgUrl,Long userId) {
         this.filename = profileImgUrl + "1";
         this.imageUrl = profileImgUrl;
+        this.userId = userId;
     }
 }

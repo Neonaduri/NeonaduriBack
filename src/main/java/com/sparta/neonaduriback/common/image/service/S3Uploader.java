@@ -38,36 +38,30 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
 
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
+
+    public String upload(MultipartFile multipartFile, String dirName, Long userId) throws IOException {
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
                 .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-        return upload(uploadFile, dirName);
-    }
 
-    // S3로 파일 업로드하기
-    private String upload(File uploadFile, String dirName) {
         String fileName = dirName + "/" + UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
+
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
 
         removeNewFile(uploadFile);
 
-        Image image = new Image(fileName, uploadImageUrl);
+        Image image = new Image(fileName, uploadImageUrl, userId);
         imageRepository.save(image);
         return uploadImageUrl;
     }
 
+
     //------------------------  유저프로필 수정 --------------------------
 
-    //게시글 수정 (이미지 파일 변환)
+    //프로필 수정 (이미지 파일 변환)
     public String updateImage(MultipartFile multipartFile, String dirName, Long userId)throws IOException {
 
-        File uploadFile = convert(multipartFile)
-                .orElseThrow(()->new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-        return imageUpdate(uploadFile, dirName, userId);
-    }
-
-    // 게시글 수정 (이미지 파일 교체)
-    private String imageUpdate(File uploadFile, String dirName, Long userId) {
+//        File uploadFile = convert(multipartFile)
+//                .orElseThrow(()->new IllegalArgumentException("error: MultipartFile -> File convert fail"));
 
         User user = userRepository.findById(userId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 유저가 없습니다")
@@ -77,7 +71,7 @@ public class S3Uploader {
 
         //디폴트 이미지여서 아직 image레포지토리에 url이 없는 경우 -> 업로드 시킴
         if(!image.isPresent()){
-            return upload(uploadFile, dirName);
+            return upload(multipartFile, dirName, userId);
         }else{
             String fileName = image.get().getFilename();
             System.out.println(fileName);
@@ -85,42 +79,37 @@ public class S3Uploader {
             amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
             imageRepository.deleteByFilename(fileName);
         }
-        return upload(uploadFile, dirName);
+        return upload(multipartFile, dirName, userId);
+//        return imageUpdate(uploadFile, dirName, userId);
     }
+
 
     //------------------------- 후기이미지 수정  -----------------------------
 
     //게시글 수정 (이미지 파일 변환)
-    public String updateReviewImage(MultipartFile multipartFile, String dirName, Long reviewId)throws IOException {
-        File uploadFile = convert(multipartFile)
-                .orElseThrow(()->new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-        return reviewImageUpdate(uploadFile, dirName, reviewId);
-    }
+    public String updateReviewImage(MultipartFile multipartFile, String dirName, Long reviewId, Long userId)throws IOException {
 
-    // 게시글 수정 (이미지 파일 교체)
-    private String reviewImageUpdate(File uploadFile, String dirName, Long reviewId) {
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()->new IllegalArgumentException("해당 리뷰가 없습니다")
         );
         String imageUrl=review.getReviewImgUrl();
         //기존에 사진 url이 없던 경우가 아니라면
 //        if(!(imageUrl==null || imageUrl.equals(""))){
-            Optional<Image> image = imageRepository.findByImageUrl(imageUrl);
+        Optional<Image> image = imageRepository.findByImageUrl(imageUrl);
 //            System.out.println("이미지 실체 네임:"+image.get().getFilename());
-            //디폴트 이미지여서 아직 image레포지토리에 url이 없는 경우 -> 업로드 시킴
-            if(!image.isPresent()){
-                return upload(uploadFile, dirName);
-            }else{
-                String fileName = image.get().getFilename();
-                System.out.println(fileName);
-                //버켓에 없는 파일네임을 지우라하면 에러가 날까? -> 난다..
-                amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
-                imageRepository.deleteByFilename(fileName);
-            }
-//        }
-        return upload(uploadFile, dirName);
-    }
+        //디폴트 이미지여서 아직 image레포지토리에 url이 없는 경우 -> 업로드 시킴
+        if(!image.isPresent()){
+            return upload(multipartFile, dirName, userId);
+        }else{
+            String fileName = image.get().getFilename();
+            System.out.println(fileName);
 
+            deleteImage(fileName);
+            imageRepository.deleteByFilename(fileName);
+        }
+        return upload(multipartFile, dirName, userId);
+//        return reviewImageUpdate(uploadFile, dirName, reviewId, userId);
+    }
 
     // S3로 업로드
     private String putS3(File uploadFile, String fileName) {
@@ -150,6 +139,7 @@ public class S3Uploader {
         return Optional.empty();
     }
 
+    // S3에 올라갔던 사진 삭제
     public void deleteImage(String fileName){
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }

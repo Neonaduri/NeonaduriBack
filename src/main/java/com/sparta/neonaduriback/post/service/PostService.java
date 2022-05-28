@@ -311,6 +311,41 @@ public class PostService {
 
         return paging.overPages(themeList,start,end,pageable,pageno);
     }
+    //테마별 조회 테스트
+    public Page<?> testThemePosts(String theme, int page, int size, String sortBy, UserDetailsImpl userDetails) {
+        
+        Sort.Direction direction = Sort.Direction.DESC;
+        System.out.println(direction);
+        Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
+        System.out.println("sort = " + sort);
+        Pageable pageable=PageRequest.of(page, size, sort);
+        
+        Page<Post> posts=postRepository.findAllByThemeAndIspublicTrue(theme, pageable);
+        System.out.println("!!!!!!!!");
+        List<PlanResponseDto> themeList=new ArrayList<>();
+
+        for(Post post: posts){
+            System.out.println("???????????="+post.getPostTitle());
+            System.out.println(post.getDays().size());
+            //나만보기 상태이면 추가 안함(jpa로 조건 걸 수 있으나 db에 너무 많은 작업이 가는 것 같아서 자바단에서 실행)
+            if(post.getDays().size()==0) continue;
+            System.out.println("나오나요");
+            Long userId=userDetails.getUser().getId();
+            //로그인 유저가 찜한 것인지 여부 확인
+            System.out.println(userId+"userId는 왼쪽 ");
+            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
+            //게시물의 reviewCnt 계산
+            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
+            System.out.println("reviewCnt = " + reviewCnt);
+            PlanResponseDto planResponseDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
+                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
+            themeList.add(planResponseDto);
+        }
+        System.out.println("??????????????");
+        Page<PlanResponseDto> planResponseDtos=new PageImpl<>(themeList, pageable, posts.getTotalElements());
+        return planResponseDtos;
+    }
+
 
     //게시물 상세조회
     public Post showDetail(Long postId, UserDetailsImpl userDetails) {
@@ -367,7 +402,7 @@ public class PostService {
 //        System.out.println("placesDto.getPlanTime() = " + placesDto.getPlanTime());
 //
 //
-//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), (List<Places>) placesDto);
+//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), List<PlacesDto>);
 //
 //        System.out.println("daysDto.getDateNumber() = " + daysDto.getDateNumber());
 //        System.out.println("daysDto.getPlaces() = " + daysDto.getPlaces());
@@ -427,6 +462,28 @@ public class PostService {
         int end=Math.min((start+8), searchList.size());
 
         return paging.overPages(searchList,start,end,pageable,pageno);
+    }
+    //검색테스트
+    public Page<?> testSearchPosts(String keyword, int page, int size, String sortBy,UserDetailsImpl userDetails) {
+        Sort.Direction direction=Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
+        Pageable pageable=PageRequest.of(page, size,sort);
+        Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable);
+
+        List<PlanResponseDto> searchList=new ArrayList<>();
+        for(Post post: searchResults){
+            if(!post.isIspublic() || post.getDays().size()==0) continue;
+            Long userId=userDetails.getUser().getId();
+            //로그인 유저가 찜한 것인지 여부 확인
+            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
+            //게시물의 reviewCnt 계산
+            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
+            PlanResponseDto themeAndSearchDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
+                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
+            searchList.add(themeAndSearchDto);
+        }
+        return new PageImpl<>(searchList, pageable, searchResults.getTotalElements());
+
     }
 
 //--------------------------------------------------------------------------------------
@@ -491,4 +548,6 @@ public class PostService {
         postRepository.deleteById(postId);
         return postId;
     }
+
+
 }

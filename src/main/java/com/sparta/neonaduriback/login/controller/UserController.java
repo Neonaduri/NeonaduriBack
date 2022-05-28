@@ -19,7 +19,10 @@ import com.sparta.neonaduriback.login.service.KakaoUserService;
 import com.sparta.neonaduriback.login.service.UserService;
 import com.sparta.neonaduriback.login.validator.UserInfoValidator;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
+import com.sparta.neonaduriback.utils.StatusEnum;
+import com.sparta.neonaduriback.utils.StatusMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -82,6 +86,7 @@ public class UserController {
         Long userId = userDetails.getUser().getId();
         //파일이 비었다는 것은 사용자가 이미지를 삭제했다거나 , 사진 수정하지 않았다는 것
         if (multipartFile.isEmpty()){
+
             userService.deleteProfileImg(profileImgUrl,nickName,userId);
         } else {
             //사용자가 이미지를 수정함
@@ -95,10 +100,10 @@ public class UserController {
         public ResponseEntity<Boolean> updatePassword(@RequestBody PasswordRequestDto passwordRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
             return userService.updatePassword(passwordRequestDto, userDetails);
         }
-     }
 
-//    // 회원탈퇴
-//    @GetMapping("/withdrawal")
-//    public ResponseEntity<Boolean> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return ResponseEntity.ok(userService.withdrawal(userDetails));
-//    }
+// 회원 탈퇴
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<String> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+        return userService.withdrawal(userDetails);
+    }
+}

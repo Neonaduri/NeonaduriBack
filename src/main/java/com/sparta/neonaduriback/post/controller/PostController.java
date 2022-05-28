@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -42,6 +43,7 @@ public class PostController {
 
 
     //자랑하기, 나만보기 저장
+    //-==================에러날듯?? 올바른jwt 정보 아닙니다가 여기서 나옹나??
     @PutMapping("/plans/save")
     public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
@@ -103,11 +105,12 @@ public class PostController {
     public PlanPagingDto testLocationPosts(@PathVariable("location") String location,
                                            @PathVariable("pageno") int pageno,
                                            @PathVariable("sortBy") String sortBy,
-                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails
+                                           ){
 
         int page=pageno-1;
         int size=5;
-        Page<PlanResponseDto> postList=postService.testLocationPosts(location, page,size, sortBy, userDetails);
+        Page<?> postList=postService.testLocationPosts(location, page,size, sortBy, userDetails);
         //islastPage
         boolean islastPage=false;
         System.out.println(postList.getTotalPages());
@@ -115,8 +118,10 @@ public class PostController {
         if(postList.isLast()){
             islastPage=true;
         }
-        PlanPagingDto bestAndLocationPagingDto=new PlanPagingDto(postList,islastPage);
-        return  bestAndLocationPagingDto;
+
+//        response.setHeader("accept","image/webp");
+        PlanPagingDto locationList=new PlanPagingDto(postList,islastPage);
+        return  locationList;
     }
 
     //테마별 조회
@@ -132,6 +137,23 @@ public class PostController {
         }
         PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList, islastPage);
         return themeAndSearchPagingDto;
+    }
+    //테마별 조회 테스트
+    @GetMapping("/plans/theme/{theme}/{pageno}/{sortBy}")//?theme=맛집&pageno=1&sortBy=postId
+    public PlanPagingDto testThemePosts(@PathVariable("theme") String theme,
+                                        @PathVariable("pageno") int pageno,
+                                        @PathVariable("sortBy") String sortBy,
+                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        int page=pageno-1;
+        int size=8;
+        Page<?> postList=postService.testThemePosts(theme, page, size, sortBy, userDetails);
+        boolean islastPage=false;
+        if(postList.isLast()){
+            islastPage=true;
+        }
+        PlanPagingDto themeList=new PlanPagingDto(postList,islastPage);
+        return  themeList;
     }
 
     //상세조회
@@ -171,12 +193,32 @@ public class PostController {
         }
     }
 
-    //검색 결과 조회
+    //검색 결과 조회 => 에러발생 수정하자아아아 (requesetParam으로 dto를 받거나 ModelAttribute로 받는다,,?)
     @GetMapping("/plans/keyword/{keyword}/{pageno}")
     public PlanPagingDto showSearchPosts(@PathVariable("pageno") int pageno, @PathVariable("keyword") String keyword,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         System.out.println("키워드:"+keyword);
         Page<?> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
+
+        //islastPage
+        boolean islastPage=false;
+        if(postList.getTotalPages()==postList.getNumber()+1){
+            islastPage=true;
+        }
+        PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList, islastPage);
+        return themeAndSearchPagingDto;
+    }
+
+    //검색 querydsl
+    @GetMapping("/plans/keyword/results")//?keyword=액티&pageno=1&sortBy=viewCnt
+    public PlanPagingDto showSearchPosts(@RequestParam("keyword") String keyword,
+                                         @RequestParam("pageno") int pageno,
+                                         @RequestParam("sortBy") String sortBy,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+        int page= pageno-1;
+        int size= 8;
+
+        Page<?> postList=postService.testSearchPosts(keyword,page, size, sortBy, userDetails);
 
         //islastPage
         boolean islastPage=false;

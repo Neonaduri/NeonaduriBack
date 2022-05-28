@@ -13,17 +13,28 @@ package com.sparta.neonaduriback.login.service;
  */
 
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.sparta.neonaduriback.common.image.model.Image;
 import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.common.image.service.S3Uploader;
+import com.sparta.neonaduriback.like.model.Likes;
+import com.sparta.neonaduriback.like.repository.LikeRepository;
 import com.sparta.neonaduriback.login.dto.PasswordRequestDto;
 import com.sparta.neonaduriback.login.dto.SignupRequestDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
 import com.sparta.neonaduriback.login.validator.UserInfoValidator;
+import com.sparta.neonaduriback.post.dto.PostDto;
+import com.sparta.neonaduriback.post.model.Post;
+import com.sparta.neonaduriback.post.repository.PostRepository;
+import com.sparta.neonaduriback.review.dto.ReviewWithdrawalDto;
+import com.sparta.neonaduriback.review.model.Review;
+import com.sparta.neonaduriback.review.repository.ReviewRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +43,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,6 +56,10 @@ public class UserService {
     private final UserInfoValidator userInfoValidator;
     private final ImageRepository imageRepository;
     private final S3Uploader s3uploader;
+    private final PostRepository postRepository;
+    private final ReviewRepository reviewRepository;
+    private final LikeRepository likeRepository;
+    private final AmazonS3Client amazonS3Client;
 
     //회원가입
     @Transactional
@@ -123,16 +140,72 @@ public class UserService {
 
         return ResponseEntity.status(201).body(true);
     }
-
-    public class EqualPasswordException extends RuntimeException {
-
-        public EqualPasswordException(String message) {
-            super(message);
-        }
-    }
-
-//    public Boolean withdrawal(UserDetailsImpl userDetails) {
-//        return !userDetails.isAccountNonLocked();
+//
+//    public class EqualPasswordException extends RuntimeException {
+//
+//        public EqualPasswordException(String message) {
+//            super(message);
+//        }
 //    }
+
+    // 회원 탈퇴
+    @Transactional
+    public ResponseEntity<String> withdrawal(UserDetailsImpl userDetails) throws Exception {
+
+        Long userId = userDetails.getUser().getId();
+
+        // 탈퇴한 유저의 후기에 사진이 남아있는 경우 삭제
+        List<Review> reviewList = reviewRepository.findAllByUser(userDetails.getUser());
+
+        for (Review review : reviewList) {
+            String reviewImgUrl = review.getReviewImgUrl();
+            Optional<Image> image = imageRepository.findByImageUrl(reviewImgUrl);
+
+            if(image.isPresent()) {
+                String fileName = image.get().getFilename();
+
+                s3uploader.deleteImage(fileName);
+                imageRepository.deleteByFilename(fileName);
+            }
+        }
+        // 탈퇴한 유저의 프로필이미지 삭제
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new IllegalArgumentException("해당 유저가 없습니다")
+        );
+//        String imageUrl = user.getProfileImgUrl();
+        
+        Optional<Image> image = imageRepository.findByUserId(userId);
+
+        if(image.isPresent()){
+            String fileName = image.get().getFilename();
+
+            s3uploader.deleteImage(fileName);
+            imageRepository.deleteByUserId(userId);
+        }
+
+        // 탈퇴한 유저의 게시글 비활성화
+        List<Post> postList = postRepository.findAllByUser(user);
+        for (Post post : postList) {
+            if (post != null) {
+                post.setUser(null);
+                postRepository.save(post);
+            }
+        }
+
+        // 탈퇴한 유저의 후기 삭제
+        reviewRepository.deleteAllByUser(user);
+
+        // 찜 삭제
+//        List<Likes> likesList = likeRepository.findAllByUserId(userId);
+//        for (Likes likes : likesList) {
+//            if (likes != null) {
+//                likes.setUserId(null);
+//                likes.setPostId(null);
+//                likeRepository.save(likes);
+//            }
+//        }
+        userRepository.deleteById(userId);
+        return ResponseEntity.status(201).body("201");
+    }
 
 }

@@ -19,6 +19,7 @@ import com.sparta.neonaduriback.post.repository.PostRepository;
 import com.sparta.neonaduriback.review.dto.MyReviewListDto;
 import com.sparta.neonaduriback.review.dto.ReviewListDto;
 import com.sparta.neonaduriback.review.dto.ReviewRequestDto;
+import com.sparta.neonaduriback.review.dto.ReviewResponseDto;
 import com.sparta.neonaduriback.review.model.Review;
 import com.sparta.neonaduriback.review.repository.ReviewRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +48,7 @@ public class ReviewService {
     private final S3Uploader s3Uploader;
 
     // 후기 등록
-    public void createReview(Long postId, ReviewRequestDto reviewRequestDto, User user) {
+    public ResponseEntity<ReviewResponseDto> createReview(Long postId, ReviewRequestDto reviewRequestDto, User user) {
 
         String reviewContents = reviewRequestDto.getReviewContents();
         String reviewImgUrl = reviewRequestDto.getReviewImgUrl();
@@ -55,12 +57,20 @@ public class ReviewService {
 
         // 후기 저장
         reviewRepository.save(review);
+
+        ReviewResponseDto reviewRequestDto1 = new ReviewResponseDto(review.getId(), reviewContents, reviewImgUrl, review.getCreatedAt(), review.getModifiedAt(), user);
+        return ResponseEntity.status(201).body(reviewRequestDto1);
     }
 
-    // 내용만 등록 시
-    public void createReviewOnlyContents(Long postId, String reviewContetns, User user) {
+    // 후기 내용만 등록 시
+    public ResponseEntity<ReviewResponseDto> createReviewOnlyContents(Long postId, String reviewContetns, User user) {
+
         Review review=new Review(reviewContetns,user, postId);
         reviewRepository.save(review);
+
+        ReviewResponseDto reviewRequestDto = new ReviewResponseDto(review.getId(), reviewContetns, review.getCreatedAt(), review.getModifiedAt(), user);
+        return ResponseEntity.status(201)
+                .body(reviewRequestDto);
     }
 
     // 후기 조회
@@ -70,7 +80,7 @@ public class ReviewService {
         List<ReviewListDto> reviewList = new ArrayList<>();
 
         // postId로 해당 post의 후기 list 가져오기
-        List<Review> reviews = reviewRepository.findAllByPostId(postId);
+        List<Review> reviews = reviewRepository.findAllByPostIdOrderByCreatedAtDesc(postId);
 
         Pageable pageable = getPageable(pageno);
 
@@ -97,7 +107,7 @@ public class ReviewService {
 
     //후기수정(URL)
     @Transactional
-    public void updateReview(Long reviewId, String reviewImgUrl, String reviewContents, UserDetailsImpl userDetails) {
+    public ResponseEntity<ReviewResponseDto> updateReview(Long reviewId, String reviewImgUrl, String reviewContents, UserDetailsImpl userDetails) {
 
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 리뷰가 없습니다")
@@ -110,17 +120,21 @@ public class ReviewService {
 
             review.update(reviewContents, reviewImgUrl);
             reviewRepository.save(review);
+            ReviewResponseDto reviewRequestDto = new ReviewResponseDto(reviewId, reviewContents,reviewImgUrl, review.getCreatedAt(), review.getModifiedAt(), userDetails.getUser());
+            return ResponseEntity.status(201).body(reviewRequestDto);
 
         }else{
             //이미지 수정 x 기존값 그대로
             review.update(reviewContents,reviewImgUrl);
             reviewRepository.save(review);
+            ReviewResponseDto reviewRequestDto = new ReviewResponseDto(reviewId, reviewContents,review.getReviewImgUrl(),review.getCreatedAt(), review.getModifiedAt(), userDetails.getUser());
+            return ResponseEntity.status(201).body(reviewRequestDto);
         }
     }
 
     //후기수정(사진 파일)
     @Transactional
-    public void updateReviewWithFile(Long reviewId, MultipartFile multipartFile, String reviewContents,UserDetailsImpl userDetails) throws IOException {
+    public ResponseEntity<ReviewResponseDto> updateReviewWithFile(Long reviewId, MultipartFile multipartFile, String reviewContents,UserDetailsImpl userDetails) throws IOException {
 
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()->new IllegalArgumentException("해당 리뷰가 없습니다")
@@ -128,13 +142,17 @@ public class ReviewService {
         if(!review.getUser().getId().equals(userDetails.getUser().getId())){
             throw new IllegalArgumentException("리뷰 작성자만 수정이 가능합니다");
         }
-        String reviewImgUrl=s3Uploader.updateReviewImage(multipartFile,"static",reviewId);
+        Long userId= userDetails.getUser().getId();
+
+        String reviewImgUrl=s3Uploader.updateReviewImage(multipartFile,"static",reviewId, userId);
         System.out.println("url"+reviewImgUrl);
         review.update(reviewContents, reviewImgUrl);
         reviewRepository.save(review);
+        ReviewResponseDto reviewRequestDto = new ReviewResponseDto(reviewId, reviewContents, reviewImgUrl, review.getCreatedAt(), review.getModifiedAt(), userDetails.getUser());
+        return ResponseEntity.status(201).body(reviewRequestDto);
     }
 
-
+// 후기 수정 전 다시 조회
     public ReviewListDto getReviewAgain(Long reviewId, UserDetailsImpl userDetails) {
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 리뷰가 없습니다")
@@ -158,7 +176,7 @@ public class ReviewService {
         Review review=reviewRepository.findById(reviewId).orElseThrow(
                 ()->new IllegalArgumentException("해당 리뷰가 없습니다")
         );
-        if(review.getUser().getId()!=userDetails.getUser().getId()){
+        if(!review.getUser().getId().equals(userDetails.getUser().getId())){
             throw new IllegalArgumentException("리뷰 작성자만 삭제가 가능합니다");
         }
         reviewRepository.deleteById(reviewId);
@@ -168,7 +186,7 @@ public class ReviewService {
     //내가 쓴 후기 조회
     public List<MyReviewListDto> showMyReviews(UserDetailsImpl userDetails) {
         User user=userDetails.getUser();
-        List<Review> reviewList=reviewRepository.findAllByUser(user);
+        List<Review> reviewList=reviewRepository.findAllByUserOrderByCreatedAtDesc(user);
 
         List<MyReviewListDto> myReviewList=new ArrayList<>();
 
