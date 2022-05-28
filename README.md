@@ -1,6 +1,6 @@
 # 너나들이
 
-<a href="https://neonaduri.com"> <img alt="너나들이" src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/773840e5-9446-4aaa-9de3-10dc1076107e/Group_772.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220528%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220528T221442Z&X-Amz-Expires=86400&X-Amz-Signature=dbbbc690e0fae7fcb5905f370aa59cf824e9a6b30659b716f432d7859bca6326&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Group%2520772.png%22&x-id=GetObject" width="500" height="250"> </a>
+<a href="https://neonaduri.com"> <img alt="너나들이" src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/773840e5-9446-4aaa-9de3-10dc1076107e/Group_772.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220528%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220528T221442Z&X-Amz-Expires=86400&X-Amz-Signature=dbbbc690e0fae7fcb5905f370aa59cf824e9a6b30659b716f432d7859bca6326&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Group%2520772.png%22&x-id=GetObject" width="550" height="350"> </a>
 
 <br>
 
