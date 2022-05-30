@@ -10,6 +10,8 @@ package com.sparta.neonaduriback.login.validator;
  *
  *   수정일     수정자             수정내용
  *  --------   --------    ---------------------------
+ *  2022.05.06 오예령       유효성 검사 추가, 아이디 중복 체크
+ *  2022.05.07 오예령       유저 정보 조회 return 형태 변경 (리팩토링)
  */
 
 
@@ -17,6 +19,7 @@ import com.sparta.neonaduriback.like.repository.LikeRepository;
 import com.sparta.neonaduriback.login.dto.IsLoginDto;
 import com.sparta.neonaduriback.login.dto.SignupRequestDto;
 import com.sparta.neonaduriback.login.repository.UserRepository;
+import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.repository.PostRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 

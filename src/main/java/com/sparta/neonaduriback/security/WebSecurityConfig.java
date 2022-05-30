@@ -72,6 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
+        // h2-console 사용에 대한 허용 (CSRF, FrameOptions 무시)
         web
                 .ignoring()
                 .antMatchers("/h2-console/**","/v3/api-docs","/favicon.ico",
@@ -150,6 +151,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         skipPathList.add("GET,/images/**");
         skipPathList.add("GET,/css/**");
+//        skipPathList.add("POST,/auth/**");
+//        skipPathList.add("GET,/auth/**");
 
         // h2-console 허용
         skipPathList.add("GET,/h2-console/**");
@@ -195,7 +198,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     //cors 해결
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.addAllowedOrigin("http://localhost:3000"); // local 테스트 시
+        corsConfiguration.addAllowedOrigin("http://localhost:3000"); // local 테스트 시
+//        corsConfiguration.addAllowedOrigin("http://neonaduri.com"); //배포시
         corsConfiguration.addAllowedOrigin("https://neonaduri.com"); //배포시
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");

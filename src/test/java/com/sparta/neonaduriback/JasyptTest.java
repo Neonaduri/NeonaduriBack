@@ -1,7 +1,13 @@
 //package com.sparta.neonaduriback;
 //
+//import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+//import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+//import org.junit.jupiter.api.Test;
+//
+//import static org.assertj.core.api.Assertions.assertThat;
+//
 //public class JasyptTest {
-
+//
 //    @Test
 //    public void stringEncryptor(){
 //        String text="평문비밀번호";
@@ -27,5 +33,5 @@
 //        System.out.println(decryptText);
 //        assertThat(text).isEqualTo(decryptText);
 //    }
-
+//
 //}

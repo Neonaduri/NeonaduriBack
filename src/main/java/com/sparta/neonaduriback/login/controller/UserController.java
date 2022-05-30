@@ -74,7 +74,7 @@ public class UserController {
 
     // 유저프로필 수정
     @PutMapping("/user/mypage")
-    public ResponseEntity<String> updateUserInfo(@RequestParam("profileImgFile") MultipartFile multipartFile,
+    public ResponseEntity<String> updateUserInfo(@RequestParam(value = "profileImgFile") MultipartFile multipartFile,
                                                         @RequestParam String profileImgUrl,
                                                         @RequestParam("nickName") String nickName,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -86,6 +86,7 @@ public class UserController {
         Long userId = userDetails.getUser().getId();
         //파일이 비었다는 것은 사용자가 이미지를 삭제했다거나 , 사진 수정하지 않았다는 것
         if (multipartFile.isEmpty()){
+
             userService.deleteProfileImg(profileImgUrl,nickName,userId);
         } else {
             //사용자가 이미지를 수정함

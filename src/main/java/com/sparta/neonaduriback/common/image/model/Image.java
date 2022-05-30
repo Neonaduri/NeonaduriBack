@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -28,7 +29,8 @@ public class Image {
         this.imageUrl = imageUrl;
         this.userId = userId;
     }
-    public Image(String profileImgUrl, Long userId) {
+    //소셜 로그인 가입 시 이미지 repo 등록
+    public Image(String profileImgUrl,Long userId) {
         this.filename = profileImgUrl + "1";
         this.imageUrl = profileImgUrl;
         this.userId = userId;

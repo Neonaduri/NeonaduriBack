@@ -159,11 +159,10 @@ public class GoogleLoginService {
                     .profileImgUrl(profileImgUrl)
                     .build();
             userRepository.save(googoleUser);
+
+            Image image = new Image(profileImgUrl, googoleUser.getId());
+            imageRepository.save(image);
         }
-
-        Image image = new Image(profileImgUrl, googoleUser.getId());
-        imageRepository.save(image);
-
         return googoleUser;
     }
 

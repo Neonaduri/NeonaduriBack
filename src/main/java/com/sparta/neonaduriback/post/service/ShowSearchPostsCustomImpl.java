@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.neonaduriback.post.dto.PlanResponseDto;
 import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.model.QPost;
 import com.sparta.neonaduriback.utils.QueryDslUtil;
@@ -33,7 +34,7 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 
 
     @Override
-    public Page<Post> keywordSearch(String keyword, Pageable pageable, String sortBy) {
+    public Page<Post> keywordSearch(String keyword, Pageable pageable) {
 
 //동적 sorting 적용한 방법 1
 //        List<OrderSpecifier> SORTING = queryDslUtil.getAllOrderSpecifiers(pageable);
@@ -47,9 +48,9 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 //                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
 //                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
 //                                ))).
-////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
 //                offset(pageable.getOffset()).
 //                limit(pageable.getPageSize()).
+////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
 //                fetch();
 //
 //        JPAQuery<Post> countQuery = queryFactory
@@ -65,16 +66,15 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 //
 
 //동적 sorting 적용한 방법2
-        QueryResults<Post> results = queryFactory.selectFrom(
-                        post).
-                where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
-                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
-                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
-                                ))).
-                orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new)).
-                offset(pageable.getOffset()).
-                limit(pageable.getPageSize()).
-                fetchResults();
+        QueryResults<Post> results = queryFactory.selectFrom(post).
+                                    where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+                                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+                                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+                                    ))).
+                                    orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new)).
+                                    offset(pageable.getOffset()).
+                                    limit(pageable.getPageSize()).
+                                    fetchResults();
         List<Post> content=results.getResults();
         long totalCount=results.getTotal();
 
@@ -98,3 +98,5 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
         return orders;
     }
 }
+
+

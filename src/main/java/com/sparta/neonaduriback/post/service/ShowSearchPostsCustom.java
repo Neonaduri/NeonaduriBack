@@ -8,6 +8,6 @@ import org.springframework.data.domain.Sort;
 public interface ShowSearchPostsCustom {
 
     //검색 querydsl
-    Page<Post> keywordSearch(String keyword, Pageable pageable, String sortBy);
+    Page<Post> keywordSearch(String keyword, Pageable pageable);
 
 }

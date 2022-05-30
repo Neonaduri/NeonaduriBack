@@ -14,6 +14,7 @@ import com.sparta.neonaduriback.review.repository.ReviewRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import com.sparta.neonaduriback.utils.ImageBundle;
 import com.sparta.neonaduriback.utils.Paging;
+import com.sparta.neonaduriback.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -33,36 +34,36 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
     private final ImageBundle imageBundle;
+    private final QueryDslUtil queryDslUtil;
     private final Paging paging;
 
     //방 만들기
-    public ResponseEntity<RoomMakeRequestDto> makeRoom(RoomMakeRequestDto roomMakeRequestDto, User user) {
+    public RoomMakeRequestDto makeRoom(RoomMakeRequestDto roomMakeRequestDto, User user) {
 
         Post post= new Post(roomMakeRequestDto, user);
-
         postRepository.save(post);
-
         Long postId=post.getPostId();
-
+        String postUUID=post.getPostUUID();
         roomMakeRequestDto.setPostId(postId);
-        roomMakeRequestDto.setPostUUID(post.getPostUUID());
+        roomMakeRequestDto.setPostUUID(postUUID);
         roomMakeRequestDto.setUser(user);
-        return ResponseEntity.status(201).body(roomMakeRequestDto);
+        return roomMakeRequestDto;
     }
 
     // 플랜 계획 조회하기
-    public ResponseEntity<RoomMakeRequestDto> getPost(String postUUID) {
+    public RoomMakeRequestDto getPost(String postUUID) {
+        System.out.println(postUUID);
         Post post = postRepository.findByPostUUID(postUUID).orElseThrow(
                 ()-> new IllegalArgumentException("게시물이 존재하지 않습니다.")
         );
-        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getPostUUID(), post.getStartDate(),
-                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme(),post.getUser());
-        return ResponseEntity.status(200).body(roomMakeRequestDto);
+        RoomMakeRequestDto roomMakeRequestDto = new RoomMakeRequestDto(post.getPostId(), post.getPostUUID(),post.getStartDate(),
+                post.getEndDate(), post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getTheme(), post.getUser());
+        return roomMakeRequestDto;
     }
 
     //자랑하기
     @Transactional
-    public ResponseEntity<String> showAll(PostRequestDto postRequestDto, User user) {
+    public String showAll(PostRequestDto postRequestDto, User user) {
 
         postRepository.findByUserAndPostUUID(user, postRequestDto.getPostUUID()).orElseThrow(
                 ()->new IllegalArgumentException("방을 생성한 유저만 여행 계획 저장이 가능합니다.")
@@ -75,8 +76,7 @@ public class PostService {
             int dateNumber=i+1;
 
             List<PlaceRequestDto> placeRequestDtoList=dayRequestDtoList.get(i).getPlaces();
-
-            //위에 리스트를 정렬?
+            //위에 리스트를 정렬
             Comparator<PlaceRequestDto> comparator = new Comparator<PlaceRequestDto>() {
                 @Override
                 public int compare(PlaceRequestDto a, PlaceRequestDto b) {
@@ -90,7 +90,6 @@ public class PostService {
             //n일차에 대한 n개의 방문 장소 Places entity에 저장
             for(PlaceRequestDto placeRequestDtos:placeRequestDtoList){
                 Places places= new Places(placeRequestDtos);
-
                 placesRepository.save(places);
                 placesList.add(places);
             }
@@ -106,13 +105,7 @@ public class PostService {
         //전체 여행계획 저장
         post.completeSave(postRequestDto,daysList);
         postRepository.save(post);
-
-        String postUUID= post.getPostUUID();
-        if(postRequestDto.getPostUUID().equals(postUUID)){
-            return ResponseEntity.status(201).body("201");
-        }else{
-            return ResponseEntity.status(400).body("400");
-        }
+        return post.getPostUUID();
     }
 
     //내가 찜한 게시물 조회
@@ -127,7 +120,6 @@ public class PostService {
         //리팩토링 필요
         for(Likes likes:likesList){
             Optional<Post> postOptional=postRepository.findById(likes.getPostId());
-
 
             //찜한 게시물이 존재할 경우
             if(postOptional.isPresent()){
@@ -320,16 +312,15 @@ public class PostService {
 
         return paging.overPages(themeList,start,end,pageable,pageno);
     }
-
     //테마별 조회 테스트
     public Page<?> testThemePosts(String theme, int page, int size, String sortBy, UserDetailsImpl userDetails) {
-
+        
         Sort.Direction direction = Sort.Direction.DESC;
         System.out.println(direction);
         Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
 
         Pageable pageable=PageRequest.of(page, size, sort);
-
+        
         Page<Post> posts=postRepository.findAllByThemeAndIspublicTrue(theme, pageable);
 
         List<PlanResponseDto> themeList=new ArrayList<>();
@@ -354,36 +345,37 @@ public class PostService {
         return planResponseDtos;
     }
 
+
     //게시물 상세조회
     public Post showDetail(Long postId, UserDetailsImpl userDetails) {
 
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new IllegalArgumentException("해당 계획이 없습니다.")
+        Post post=postRepository.findById(postId).orElseThrow(
+                ()->new IllegalArgumentException("해당 게시물이 없습니다")
         );
 
         post.setIslike(userLikeTrueOrNot(userDetails.getUser().getId(), postId));
 
         //전체공개이고
-        if (post.isIspublic()) {
+        if(post.isIspublic()){
 
             // 게시글 조회 수 계산
-            post.setViewCnt(post.getViewCnt() + 1);
+            post.setViewCnt(post.getViewCnt()+1);
             postRepository.save(post);
 
             return postRepository.findById(postId).orElseThrow(
-                    () -> new IllegalArgumentException("해당 게시물이 없습니다")
+                    ()->new IllegalArgumentException("해당 게시물이 없습니다")
             );
-        } else {
+        }else{
             // 현재 유저가 작성자와 같으면
-            if (post.getUser().getId().equals(userDetails.getUser().getId())) {
+            if(post.getUser().getId().equals(userDetails.getUser().getId())){
                 return postRepository.findById(postId).orElseThrow(
-                        () -> new IllegalArgumentException("해당 게시물이 없습니다")
+                        ()->new IllegalArgumentException("해당 게시물이 없습니다")
                 );
-            } else
+            }else{
                 return null;
+            }
         }
     }
-
 //    public PostDto showDetail(Long postId, UserDetailsImpl userDetails) {
 //
 //        Post post = postRepository.findById(postId).orElseThrow(
@@ -470,13 +462,12 @@ public class PostService {
 
         return paging.overPages(searchList,start,end,pageable,pageno);
     }
-
     //검색테스트
     public Page<?> testSearchPosts(String keyword, int page, int size, String sortBy,UserDetailsImpl userDetails) {
         Sort.Direction direction=Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
         Pageable pageable=PageRequest.of(page, size,sort);
-        Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable, sortBy);
+        Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable);
         System.out.println("totalelements"+searchResults.getTotalElements());
 
         List<PlanResponseDto> searchList=new ArrayList<>();
@@ -545,22 +536,8 @@ public class PostService {
     }
 
     // 여행 게시물 삭제
-//    @Transactional
-//    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
-//        Post post=postRepository.findById(postId).orElseThrow(
-//                ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
-//        );
-//        if(!post.getUser().getId().equals(userDetails.getUser().getId())){
-//            throw new IllegalArgumentException("게시물 작성자만 삭제가 가능합니다");
-//        }
-//        reviewRepository.deleteAllByPostId(postId);
-//        likeRepository.deleteAllByPostId(postId);
-//        postRepository.deleteById(postId);
-//        return postId;
-//    }
-
     @Transactional
-    public ResponseEntity<String> deletePost(UserDetailsImpl userDetails, Long postId) {
+    public Long deletePost(UserDetailsImpl userDetails, Long postId) {
         Post post=postRepository.findById(postId).orElseThrow(
                 ()->new IllegalArgumentException("해당 게시물이 없으므로 삭제할 수 없습니다")
         );
@@ -570,7 +547,8 @@ public class PostService {
         reviewRepository.deleteAllByPostId(postId);
         likeRepository.deleteAllByPostId(postId);
         postRepository.deleteById(postId);
+        return postId;
+    }
 
-        return ResponseEntity.status(200).body("삭제가 정상적으로 완료됨");
-    }
-    }
+
+}
