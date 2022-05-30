@@ -38,7 +38,7 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 
 //동적 sorting 적용한 방법 1
 //        List<OrderSpecifier> SORTING = queryDslUtil.getAllOrderSpecifiers(pageable);
-//
+
 //        List<Post> results = queryFactory.selectFrom(
 //                post).
 ////                ExpressionUtils.as(
@@ -52,7 +52,7 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 //                limit(pageable.getPageSize()).
 ////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
 //                fetch();
-//
+
 //        JPAQuery<Post> countQuery = queryFactory
 //                .select(post)
 //                .from(post)
@@ -63,7 +63,7 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 //        System.out.println("개수"+countQuery.fetchCount());
 //
 //        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchCount);
-//
+
 
 //동적 sorting 적용한 방법2
         QueryResults<Post> results = queryFactory.selectFrom(post).
