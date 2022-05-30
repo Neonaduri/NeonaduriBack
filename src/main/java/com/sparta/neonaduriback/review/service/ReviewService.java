@@ -187,9 +187,8 @@ public class ReviewService {
                 throw new IllegalArgumentException("리뷰 작성자만 삭제가 가능합니다");
             }
 
-            if (review.getReviewImgUrl() == null) {
+            else if (review.getReviewImgUrl() == null || review.getReviewImgUrl().equals("")) {
                 reviewRepository.deleteById(reviewId);
-                return ResponseEntity.status(200).body("200");
             }
 
             String reviewImgUrl = review.getReviewImgUrl();
