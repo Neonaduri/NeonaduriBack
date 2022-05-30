@@ -14,6 +14,7 @@ import com.sparta.neonaduriback.review.repository.ReviewRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import com.sparta.neonaduriback.utils.ImageBundle;
 import com.sparta.neonaduriback.utils.Paging;
+import com.sparta.neonaduriback.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
     private final ImageBundle imageBundle;
+    private final QueryDslUtil queryDslUtil;
     private final Paging paging;
 
     //방 만들기
@@ -74,7 +76,7 @@ public class PostService {
             int dateNumber=i+1;
 
             List<PlaceRequestDto> placeRequestDtoList=dayRequestDtoList.get(i).getPlaces();
-            //위에 리스트를 정렬?
+            //위에 리스트를 정렬
             Comparator<PlaceRequestDto> comparator = new Comparator<PlaceRequestDto>() {
                 @Override
                 public int compare(PlaceRequestDto a, PlaceRequestDto b) {
@@ -118,7 +120,6 @@ public class PostService {
         //리팩토링 필요
         for(Likes likes:likesList){
             Optional<Post> postOptional=postRepository.findById(likes.getPostId());
-
 
             //찜한 게시물이 존재할 경우
             if(postOptional.isPresent()){
@@ -317,31 +318,29 @@ public class PostService {
         Sort.Direction direction = Sort.Direction.DESC;
         System.out.println(direction);
         Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
-        System.out.println("sort = " + sort);
+
         Pageable pageable=PageRequest.of(page, size, sort);
         
         Page<Post> posts=postRepository.findAllByThemeAndIspublicTrue(theme, pageable);
-        System.out.println("!!!!!!!!");
+
         List<PlanResponseDto> themeList=new ArrayList<>();
 
         for(Post post: posts){
-            System.out.println("???????????="+post.getPostTitle());
+
             System.out.println(post.getDays().size());
             //나만보기 상태이면 추가 안함(jpa로 조건 걸 수 있으나 db에 너무 많은 작업이 가는 것 같아서 자바단에서 실행)
             if(post.getDays().size()==0) continue;
-            System.out.println("나오나요");
+
             Long userId=userDetails.getUser().getId();
             //로그인 유저가 찜한 것인지 여부 확인
-            System.out.println(userId+"userId는 왼쪽 ");
+
             post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
             //게시물의 reviewCnt 계산
             int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
-            System.out.println("reviewCnt = " + reviewCnt);
             PlanResponseDto planResponseDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
                     post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
             themeList.add(planResponseDto);
         }
-        System.out.println("??????????????");
         Page<PlanResponseDto> planResponseDtos=new PageImpl<>(themeList, pageable, posts.getTotalElements());
         return planResponseDtos;
     }
@@ -469,10 +468,11 @@ public class PostService {
         Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
         Pageable pageable=PageRequest.of(page, size,sort);
         Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable);
+        System.out.println("totalelements"+searchResults.getTotalElements());
 
         List<PlanResponseDto> searchList=new ArrayList<>();
         for(Post post: searchResults){
-            if(!post.isIspublic() || post.getDays().size()==0) continue;
+//            if(!post.isIspublic() || post.getDays().size()==0) continue;
             Long userId=userDetails.getUser().getId();
             //로그인 유저가 찜한 것인지 여부 확인
             post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
@@ -482,6 +482,7 @@ public class PostService {
                     post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
             searchList.add(themeAndSearchDto);
         }
+        System.out.println(pageable.getSort());
         return new PageImpl<>(searchList, pageable, searchResults.getTotalElements());
 
     }

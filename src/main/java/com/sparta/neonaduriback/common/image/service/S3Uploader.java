@@ -54,19 +54,15 @@ public class S3Uploader {
     //프로필 수정 (이미지 파일 변환)
     public String updateImage(MultipartFile multipartFile, String dirName, Long userId)throws IOException {
 
-        System.out.println("2222222222222222");
-        System.out.println("S3Uploader에서 받는 = " + userId);
         User user = userRepository.findById(userId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 유저가 없습니다")
         );
         String imageUrl = user.getProfileImgUrl();
-        System.out.println("S3Uploader에서 받는 = " + imageUrl);
 
         Optional<Image> image = imageRepository.findByImageUrlAndUserId(imageUrl, userId);
 
         //디폴트 이미지여서 아직 image레포지토리에 url이 없는 경우 -> 업로드 시킴
         if(!image.isPresent()){
-        System.out.println("넌 나오면 안된다아ㅏ아");
             return upload(multipartFile, dirName, userId);
         }else{
             String fileName = image.get().getFilename();

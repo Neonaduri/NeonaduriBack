@@ -19,10 +19,10 @@ public class PlanPagingDto {
     private int totalPage;
     private boolean islastPage;
 
-    public PlanPagingDto(Page<?> postDtoList, boolean islastPage) {
+    public PlanPagingDto(Page<?> postDtoList) {
 
         this.planList= postDtoList.getContent();
         this.totalPage= postDtoList.getTotalPages();
-        this.islastPage=islastPage;
+        this.islastPage=postDtoList.isLast();
     }
 }

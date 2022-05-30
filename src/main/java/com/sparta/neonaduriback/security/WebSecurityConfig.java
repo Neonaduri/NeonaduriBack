@@ -200,7 +200,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:3000"); // local 테스트 시
 //        corsConfiguration.addAllowedOrigin("http://neonaduri.com"); //배포시
-//        corsConfiguration.addAllowedOrigin("https://neonaduri.com"); //배포시
+        corsConfiguration.addAllowedOrigin("https://neonaduri.com"); //배포시
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addExposedHeader("Authorization");

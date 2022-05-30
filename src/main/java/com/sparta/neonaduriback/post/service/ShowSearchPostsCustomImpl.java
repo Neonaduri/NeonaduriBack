@@ -1,13 +1,26 @@
 package com.sparta.neonaduriback.post.service;
 
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.neonaduriback.post.dto.PlanResponseDto;
 import com.sparta.neonaduriback.post.model.Post;
+import com.sparta.neonaduriback.post.model.QPost;
+import com.sparta.neonaduriback.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.sparta.neonaduriback.post.model.QPost.post;
 
@@ -17,82 +30,73 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
 
 
     private final JPAQueryFactory queryFactory;
+//    private final QueryDslUtil queryDslUtil;
 
 
     @Override
     public Page<Post> keywordSearch(String keyword, Pageable pageable) {
-//        QUser quser= new QUser("user");
-//        QReview qReview = new QReview("review");
-//        QLikes qLikes= new QLikes("likes");
+
+//동적 sorting 적용한 방법 1
+//        List<OrderSpecifier> SORTING = queryDslUtil.getAllOrderSpecifiers(pageable);
 //
-//
-//        List<PlanResponseDto> results= queryFactory.
-//                select(Projections.fields(PlanResponseDto.class,
-//                        post.postId,
-//                        post.postImgUrl,
-//                        post.postTitle,
-//                        post.startDate,
-//                        post.endDate,
-//                        post.location,
-//                        post.theme,
-//                        post.islike,
-//                        post.likeCnt, //찜한 여부 확인
-//                        countReview(post.postId, user),
-//                        post.user
-//                        )).
-//                where(post.theme.contains(keyword).
-//                        or(post.postTitle.contains(keyword).
-//                                or(post.theme.contains(keyword))).
-//                        and(post.ispublic.eq(true)).
-//                        and(post.days.size().gt(0))).
+//        List<Post> results = queryFactory.selectFrom(
+//                post).
+////                ExpressionUtils.as(
+////                        JPAExpressions.selectFrom(post)
+////                                .where(post.ispublic.eq(true)),"public").
+//                where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+//                                ))).
 //                offset(pageable.getOffset()).
 //                limit(pageable.getPageSize()).
+////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
 //                fetch();
-//        for(PlanResponseDto responseDto: results){
-//            responseDto.get
-//        }
-        //-----------------------------------------------
-        List<Post> results = queryFactory.selectFrom(
-                post).
-//                ExpressionUtils.as(
-//                        JPAExpressions.selectFrom(post)
-//                                .where(post.ispublic.eq(true)),"public").
-                where(post.theme.contains(keyword).
-                        or(post.postTitle.contains(keyword).
-                                or(post.location.contains(keyword)))).
-                offset(pageable.getOffset()).
-                limit(pageable.getPageSize()).
-                fetch();
+//
+//        JPAQuery<Post> countQuery = queryFactory
+//                .select(post)
+//                .from(post)
+//                .where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+//                                )));
+//        System.out.println("개수"+countQuery.fetchCount());
+//
+//        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchCount);
+//
 
-        //-----------------------------------------------
-//        List<PlanResponseDto> searchList=new ArrayList<>();
-//        for(Post post: results){
-//            Long userId=user.getId();
-//            Long postId=post.getPostId();
-//            //스크랩 여부 확인
-//            post.setIslike(postService.userLikeTrueOrNot(userId, postId));
-//            //댓글 수 확인
-//            int reviewCnt=reviewRepository.countByPostId(postId).intValue();
-//            PlanResponseDto planResponseDto=new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
-//                    post.getStartDate(), post.getEndDate(), post.getLocation(), post.getTheme(),
-//                    post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
-//            searchList.add(planResponseDto);
-//        }
-        return new PageImpl<>(results, pageable, results.size());
+//동적 sorting 적용한 방법2
+        QueryResults<Post> results = queryFactory.selectFrom(post).
+                                    where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+                                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+                                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+                                    ))).
+                                    orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new)).
+                                    offset(pageable.getOffset()).
+                                    limit(pageable.getPageSize()).
+                                    fetchResults();
+        List<Post> content=results.getResults();
+        long totalCount=results.getTotal();
+
+        return new PageImpl<>(content, pageable, totalCount);
+
     }
 
-//    //리뷰 수
-//    public int countReview(NumberPath<Long> postId, User user){
-//        postId= post.postId;
-//        QReview review=new QReview("review");
-//        List<Review> result=queryFactory.
-//                selectFrom(review).
-//                where(review.user.eq(user).and(review.postId.eq(postId))).
-//                fetch();
-//        return result.size();
-////                innerJoin(review.user).
-////                on(review.user.eq(user))
-
-
-//    }
+    //OrderSpecifier 구현
+    private List<OrderSpecifier> getOrderSpecifier(Sort sort) {
+        List<OrderSpecifier> orders = new ArrayList<>();
+        // Sort
+        sort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+            System.out.println("디렉션:" + direction);
+            String prop = order.getProperty();
+            System.out.println("prop:" + prop);
+            PathBuilder orderByExpression = new PathBuilder(Post.class, "post");
+            System.out.println("orderByExpression:" + orderByExpression.get(prop));
+            orders.add(new OrderSpecifier(direction, orderByExpression.get(prop)));
+        });
+        return orders;
+    }
 }
+
+
