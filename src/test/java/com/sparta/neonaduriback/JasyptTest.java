@@ -10,7 +10,7 @@ public class JasyptTest {
 
     @Test
     public void stringEncryptor(){
-        String text="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";
+        String text="Qortmd0102!";
 
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
