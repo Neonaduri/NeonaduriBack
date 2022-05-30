@@ -26,29 +26,34 @@ public class PostController {
     @PostMapping("/plans")
     public ResponseEntity<RoomMakeRequestDto> makeRoom(@RequestBody RoomMakeRequestDto roomMakeRequestDto,
                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         User user= userDetails.getUser();
-        return ResponseEntity.status(201).body(postService.makeRoom(roomMakeRequestDto, user));
+        return postService.makeRoom(roomMakeRequestDto, user);
     }
 
     //만들어진 방에서 계획 다시 조회하기
     @GetMapping("/plans/{postUUID}")
-    public RoomMakeRequestDto getPost(@PathVariable String postUUID) {
+    public ResponseEntity<RoomMakeRequestDto> getPost(@PathVariable String postUUID) {
         return postService.getPost(postUUID);
     }
 
-
     //자랑하기, 나만보기 저장
+//    @PutMapping("/plans/save")
+//    public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
+//                                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
+//        User user=userDetails.getUser();
+//        String postUUID=postService.showAll(postRequestDto, user);
+//        if(postRequestDto.getPostUUID().equals(postUUID)){
+//            return ResponseEntity.status(201).body("201");
+//        }else{
+//            return ResponseEntity.status(400).body("400");
+//        }
+//    }
+
     @PutMapping("/plans/save")
-    public ResponseEntity<String > showAll(@RequestBody PostRequestDto postRequestDto,
-                                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<String> showAll(@RequestBody PostRequestDto postRequestDto,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
         User user=userDetails.getUser();
-        String postUUID=postService.showAll(postRequestDto, user);
-        if(postRequestDto.getPostUUID().equals(postUUID)){
-            return ResponseEntity.status(201).body("201");
-        }else{
-            return ResponseEntity.status(400).body("400");
-        }
+        return postService.showAll(postRequestDto, user);
     }
 
     //내가 찜한 여행목록 조회
@@ -74,7 +79,6 @@ public class PostController {
     //인기 게시물 4개 조회
     @GetMapping("/best")
     public List<PlanResponseDto> showBestPosts(@AuthenticationPrincipal UserDetailsImpl userDetails){
-
         return postService.showBestPosts(userDetails);
     }
 
@@ -82,17 +86,29 @@ public class PostController {
     @GetMapping("/plans/location/{location}/{pageno}")
     public PlanPagingDto showLocationPosts(@PathVariable("location") String location, @PathVariable("pageno") int pageno,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
-
         //BestAndLocationDto
         Page<?> postList=postService.showLocationPosts(location,pageno-1,userDetails);
 
-        //islastPage
-        boolean islastPage=false;
-        if(postList.getTotalPages()==postList.getNumber()+1){
-            islastPage=true;
-        }
-        PlanPagingDto bestAndLocationPagingDto=new PlanPagingDto(postList,islastPage);
-        return  bestAndLocationPagingDto;
+//        //islastPage
+//        boolean islastPage=false;
+//        if(postList.getTotalPages()==postList.getNumber()+1){
+//            islastPage=true;
+//        }
+        PlanPagingDto bestAndLocationPagingDto=new PlanPagingDto(postList);
+        return bestAndLocationPagingDto;
+    }
+
+    //지역별 조회 테스트
+    @GetMapping("/plans/location/{location}/{pageno}/{sortBy}")
+    public PlanPagingDto testLocationPosts(@PathVariable("location") String location,
+                                           @PathVariable("pageno") int pageno,
+                                           @PathVariable("sortBy") String sortBy,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        int page=pageno-1;
+        int size=5;
+        Page<?> postList=postService.testLocationPosts(location, page,size, sortBy, userDetails);
+        return new PlanPagingDto(postList);
     }
 
     //테마별 조회
@@ -101,14 +117,23 @@ public class PostController {
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
         Page<?> postList=postService.showThemePosts(theme,pageno-1,userDetails);
 
-        //islastPage
-        boolean islastPage=false;
-        if(postList.getTotalPages()==postList.getNumber()+1){
-            islastPage=true;
-        }
-        PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList, islastPage);
+        PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList);
         return themeAndSearchPagingDto;
+  }
+
+    //테마별 조회 테스트
+    @GetMapping("/plans/theme/{theme}/{pageno}/{sortBy}")//?theme=맛집&pageno=1&sortBy=postId
+    public PlanPagingDto testThemePosts(@PathVariable("theme") String theme,
+                                        @PathVariable("pageno") int pageno,
+                                        @PathVariable("sortBy") String sortBy,
+                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        int page=pageno-1;
+        int size=8;
+        Page<?> postList=postService.testThemePosts(theme, page, size, sortBy, userDetails);
+        return new PlanPagingDto(postList);
     }
+
 
     //상세조회
     @GetMapping("/plans/detail/{postId}")
@@ -124,28 +149,35 @@ public class PostController {
     }
 
     //내가 등록한 여행 계획 삭제
+//    @DeleteMapping("/user/plans/{postId}")
+//    public ResponseEntity<String> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
+//                                                    @PathVariable("postId") Long postId){
+//        Long deletedPostId=postService.deletePost(userDetails, postId);
+////        if(postId.equals(deletedPostId)){
+////            StatusMessage statusMessage=new StatusMessage();
+////            statusMessage.setStatus(StatusEnum.OK);
+////            statusMessage.setData("삭제가 정상적으로 완료됨");
+////            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
+////        }else{
+////            StatusMessage statusMessage=new StatusMessage();
+////            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
+////            statusMessage.setData("삭제 실패");
+////            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
+////        }
+//
+//        if(postId.equals(deletedPostId)) {
+//            return ResponseEntity.status(200).body("삭제가 정상적으로 완료됨");
+//        } else {
+//            return ResponseEntity.status(400).body("삭제 실패!!");
+//        }
+//    }
+
     @DeleteMapping("/user/plans/{postId}")
     public ResponseEntity<String> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                    @PathVariable("postId") Long postId){
-        Long deletedPostId=postService.deletePost(userDetails, postId);
-//        if(postId.equals(deletedPostId)){
-//            StatusMessage statusMessage=new StatusMessage();
-//            statusMessage.setStatus(StatusEnum.OK);
-//            statusMessage.setData("삭제가 정상적으로 완료됨");
-//            return new ResponseEntity<StatusMessage>(statusMessage,HttpStatus.OK);
-//        }else{
-//            StatusMessage statusMessage=new StatusMessage();
-//            statusMessage.setStatus(StatusEnum.BAD_REQUEST);
-//            statusMessage.setData("삭제 실패");
-//            return new ResponseEntity<StatusMessage>(statusMessage, HttpStatus.BAD_REQUEST);
-//        }
-
-        if(postId.equals(deletedPostId)) {
-            return ResponseEntity.status(200).body("삭제가 정상적으로 완료됨");
-        } else {
-            return ResponseEntity.status(400).body("삭제 실패!!");
-        }
+                                             @PathVariable("postId") Long postId){
+        return postService.deletePost(userDetails, postId);
     }
+
 
     //검색 결과 조회 => 에러발생 수정하자아아아 (requesetParam으로 dto를 받거나 ModelAttribute로 받는다,,?)
     @GetMapping("/plans/keyword/{keyword}/{pageno}")
@@ -154,13 +186,24 @@ public class PostController {
         System.out.println("키워드:"+keyword);
         Page<?> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
 
-        //islastPage
-        boolean islastPage=false;
-        if(postList.getTotalPages()==postList.getNumber()+1){
-            islastPage=true;
-        }
-        PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList, islastPage);
+        PlanPagingDto themeAndSearchPagingDto=new PlanPagingDto(postList);
         return themeAndSearchPagingDto;
+    }
+
+    //검색 querydsl
+    @GetMapping("/plans/keyword/results")//?keyword=액티&pageno=1&sortBy=viewCnt
+    public PlanPagingDto showSearchPosts(@RequestParam("keyword") String keyword,
+                                         @RequestParam("pageno") int pageno,
+                                         @RequestParam("sortBy") String sortBy,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+        int page= pageno-1;
+        int size= 8;
+        System.out.println(keyword);
+        System.out.println(pageno);
+        System.out.println(sortBy);
+        System.out.println(page);
+        Page<?> postList = postService.testSearchPosts(keyword, page, size, sortBy, userDetails);
+        return new PlanPagingDto(postList);
     }
 
     //플랜 저장 안함.(새로고침 뒤로가기)
@@ -178,11 +221,7 @@ public class PostController {
 
         Page<?> myplanList = postService.getMyPosts(pageno-1,userDetails);
 
-        boolean islastPage = false;
-        if ( myplanList.getTotalPages() == myplanList.getNumber()+1){
-            islastPage=true;
-        }
-        PlanPagingDto postList = new PlanPagingDto(myplanList, islastPage);
+        PlanPagingDto postList = new PlanPagingDto(myplanList);
         return postList;
     }
 

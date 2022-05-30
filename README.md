@@ -41,3 +41,14 @@
 | SpringBoot |     스프링부트 사용     |
 |   MySQL    |     데이터 베이스      |
 |    git     |      버전 관리       |
+
+
+### 📝 공통 문서
+- **ERD(Entity Relationship Diagram)** - <a href="https://github.com/iamzin/SpringBoot-Project-Triport/wiki/ERDiagram" >상세보기 - WIKI 이동</a>
+- **API(Application Programming Interface)** - <a href="https://github.com/iamzin/SpringBoot-Project-Triport/wiki/API" >상세보기 - WIKI 이동</a>
+
+### ⚙️ 개발 환경
+- **Server** : AWS EC2(Ubuntu 20.04 LTS)
+- **Framework** : Springboot
+- **Database** : Mysql (AWS RDS)
+- **ETC** : AWS S3, AWS Cloudfront, AWS LoadBalancer, AWS ROUTE 53, AWS IAM  
