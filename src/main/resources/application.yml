@@ -1,0 +1,69 @@
+#aws IAM
+cloud:
+  aws:
+    credentials:
+      access-key: ENC(UWKNTkA4702H1O7GUdg3cR2lIvX4HzVJrKfnVjssmVs=)
+      secret-key: ENC(AhEGDbIY66wQiCLo5JMC5JMeB7mVYLE3iM+thXFtWs15zt8kp2s3VGY8ftUEaW5l8+2s1QD/z/w=)
+    s3:
+      bucket: ENC(QCRKdzJUEOwJ+Nvhxr+/s9vD4SPsleQ6svy2CY5Dj9c=)
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+spring:
+  # 데이터베이스 설정
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+#    url: jdbc:h2:mem:plan
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#  h2:
+#    console:
+#      enabled: true
+#      settings:
+#        web-allow-others: true
+#    url: jdbc:mysql://benjamindb.c6wukdjxvf6m.ap-northeast-2.rds.amazonaws.com:3306/INEEDSLEEP
+#    username: seungho1216
+#    password: Qortmd0102!
+    url: ENC(KtSlXWcUdFkMdlm0qIdD1f3Tgc/8DufLNKuSfpJJ4CIwMOdlPtmsZ3RPLkAJ7XM5vJwVNMb/x2KzaMYdumj7YlT9t9J0RUrp72gY4XoYJkDW1MSFeIujldz5XphuMsZCuo2uWofKOFE=)
+    username: ENC(OvaRDoJgT/60Y9bUhMY770V5/2Bmt+wW)
+    password: ENC(d/TVVfFq0QJZimtMTe8xZtiqEzp/WDQK)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+  # 소셜로그인 (구글)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ENC(ui+3dZJHcr8wGQDS3FG33OAMONUHnqeB5tpP47B63Nc2Z0g4+goDoBv/BXoDnee6bEJUDqObqdAB1aW0hTxxx4n3tk/6oKb+Z2H6SlJc2nyR/wcMLnkPjQ==)
+            client-secret: ENC(uCwDxHoiuQ/Kosql/053ROjTsmkIWlt4HPLcl5jMrK0vKWBxCT4rSvIiMdTArddM)
+            scope: profile,email,openid
+
+  # 이미지 파일 용량 리사이징
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  #swagger 적용
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
+# 암호화
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_PASSWORD}
+
