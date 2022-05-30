@@ -175,6 +175,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 비회원도 계획 참여할 수 있도록
         skipPathList.add("GET,/plans/*");
 
+        skipPathList.add("GET,/health");
+
         FilterSkipMatcher matcher = new FilterSkipMatcher(
                 skipPathList,
                 "/**"
