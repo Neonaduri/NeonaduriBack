@@ -84,6 +84,11 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+jar {
+    //plain.jar 생성 방지
+    enabled = false
+}
 def querydslDir = "$buildDir/generated/querydsl"
 
 querydsl {
