@@ -16,18 +16,7 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 20
-#    url: jdbc:h2:mem:plan
-#    username: sa
-#    password:
-#    driver-class-name: org.h2.Driver
-#  h2:
-#    console:
-#      enabled: true
-#      settings:
-#        web-allow-others: true
-#    url: ENC(n9Hw8e6eYA3IynfmyyP/J5ChjHWAr40J+ERAUo8vyM28xP0Rspp9At+bh72Jinza9zhllJPaMDL71vxqIDCClHkruJmH18v03ct1iP6SGZ7M+ZmKtEgo2qTrI0owdaVj)
-#    username: ENC(HA3VNr9+HeeSGzxnb34qGVWkANGAePcT)
-#    password: ENC(F5Q4JbkPbzXswHtwACwjlTWodu5Ha372)
+
     url: ENC(KtSlXWcUdFkMdlm0qIdD1f3Tgc/8DufLNKuSfpJJ4CIwMOdlPtmsZ3RPLkAJ7XM5vJwVNMb/x2KzaMYdumj7YlT9t9J0RUrp72gY4XoYJkDW1MSFeIujldz5XphuMsZCuo2uWofKOFE=)
     username: ENC(OvaRDoJgT/60Y9bUhMY770V5/2Bmt+wW)
     password: ENC(d/TVVfFq0QJZimtMTe8xZtiqEzp/WDQK)
