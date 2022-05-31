@@ -108,6 +108,8 @@ public class UserService {
             
             if(image==null){
                 log.info("기본 사진이거나 유저의 기존 프로필 사진을 찾을 수 없습니다.");
+                user.update(profileImgUrl, nickName);
+                userRepository.save(user);
             }else{
                 imageRepository.deleteByUserId(userId);
                 s3uploader.deleteImage(image.getFilename());
