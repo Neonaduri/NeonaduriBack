@@ -101,11 +101,14 @@ public class S3Uploader {
 
     // S3로 업로드
     private String putS3(File uploadFile, String fileName) {
+        System.out.println("puts3가 문제?1");
         amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+        System.out.println("puts3가 문제?2");
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
     // 로컬에 저장된 이미지 지우기
     private void removeNewFile(File targetFile) {
+        System.out.println("로컬지우기가 문제?1");
         if (targetFile.delete()) {
             log.info("File delete success");
             return;
@@ -114,9 +117,15 @@ public class S3Uploader {
     }
     // 로컬에 파일 업로드 하기
     private Optional<File> convert(MultipartFile file) throws IOException {
+        System.out.println("로컬에업로드가문제?1");
         File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
+        System.out.println("현재시스템경로>>>:"+System.getProperty("user.dir"));
+        System.out.println("로컬에업로드가문제?2");
+        System.out.println("로컬에업로드가문제?2");
         if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
+        System.out.println("로컬에업로드가문제?2");
             try (FileOutputStream fos = new FileOutputStream(convertFile)) { // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
+        System.out.println("로컬에업로드가문제?3");
                 fos.write(file.getBytes());
             }
             return Optional.of(convertFile);
