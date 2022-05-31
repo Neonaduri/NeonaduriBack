@@ -97,7 +97,7 @@ public class PostController {
                                            @AuthenticationPrincipal UserDetailsImpl userDetails
                                            ){
         int page=pageno-1;
-        int size=5;
+        int size=8;
         Page<?> postList=postService.testLocationPosts(location, page,size, sortBy, userDetails);
         return new PlanPagingDto(postList);
     }
