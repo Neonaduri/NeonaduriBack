@@ -10,7 +10,7 @@
 //
 //    @Test
 //    public void stringEncryptor(){
-//        String text="Qortmd0102!";
+//        String text="https://6ded0363763d4c32865e549caa25940d@o1253535.ingest.sentry.io/6420572";
 //
 //        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
 //        SimpleStringPBEConfig config = new SimpleStringPBEConfig();

@@ -67,3 +67,12 @@ jasypt:
     bean: jasyptStringEncryptor
     password: ${JASYPT_PASSWORD}
 
+# Sentry설정 추가
+sentry:
+  dsn: ENC(bg5XkO2sfddFip/0KuKz1BB22ygaDpBG3b40qodEoPjwewBGMhi/1j78ONLu1ndAxV0Z4043mZHD7NO7SRjVgszYKMTTQXRgBdSflft+yDDMFyGEzsppEA==)
+  # Set traces-sample-rate to 1.0 to capture 100% of transactions for performance monitoring.
+  # We recommend adjusting this value in production.
+  traces-sample-rate: 0.2
+  logging:
+    minimum-event-level: WARN
+    minimum-breadcrumb-level: DEBUG
