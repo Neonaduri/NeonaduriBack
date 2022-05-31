@@ -40,14 +40,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, ShowSearchPos
 
     List<Post> findAllByUser(User user);
 
-//    Optional<Post> findByIdAndPlanTimeDesc(Long postId, int planTime);
-
-//    List<PostDetail> findByPlaceIdOrderByPlanTimeAsc(Long placeId);
-
-//    @Query(nativeQuery = true, value = "SELECT a.*, b.*, c.*" +
-//            "FROM places a" +
-//            "         LEFT JOIN days b on a.places = b.day_id" +
-//            "         LEFT JOIN post c on b.days = c.post_id WHERE c.post_id =:postId order by a.plan_time ASC")
-//    Optional<Post> test(@Param("postId") Long postId);
 
 }
