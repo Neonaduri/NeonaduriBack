@@ -118,7 +118,8 @@ public class S3Uploader {
     // 로컬에 파일 업로드 하기
     private Optional<File> convert(MultipartFile file) throws IOException {
         System.out.println("로컬에업로드가문제?1");
-        File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
+//        File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
+        File convertFile = new File("/home/ubuntu/" + file.getOriginalFilename());
         System.out.println("현재시스템경로>>>:"+System.getProperty("user.dir"));
         System.out.println("convertFile>>>:"+System.getProperty("user.dir") + "/" + file.getOriginalFilename());
         System.out.println("로컬에업로드가문제?2");
