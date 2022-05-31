@@ -4,9 +4,9 @@ name: neonaduri-CICD
 
 on:
   push:
-    branches: [ dev ]
-  pull_request:
     branches: [ develop ]
+#  pull_request:
+#    branches: [ develop ]
 
 env: # 새로 추가한 부분
   S3_BUCKET_NAME: seunghodev-bucket
