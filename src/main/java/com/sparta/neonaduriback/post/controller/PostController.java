@@ -7,16 +7,12 @@ import com.sparta.neonaduriback.post.service.PostService;
 import com.sparta.neonaduriback.review.dto.MyReviewListDto;
 import com.sparta.neonaduriback.review.service.ReviewService;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
-import com.sparta.neonaduriback.utils.StatusEnum;
-import com.sparta.neonaduriback.utils.StatusMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequiredArgsConstructor
