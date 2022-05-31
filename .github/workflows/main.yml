@@ -4,7 +4,7 @@ name: neonaduri-CICD
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ develop ]
   pull_request:
     branches: [ develop ]
 
