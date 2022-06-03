@@ -100,10 +100,5 @@ public class Post extends Timestamped {
         this.likeCnt=likeCnt;
     }
 
-    // 계정 비활성화
-    public void withdrawal(PostDto postDto) {
-        this.postId = postDto.getPostId();
-        this.user = postDto.getUser();
-    }
 }
 
