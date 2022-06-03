@@ -1,6 +1,6 @@
 # 너나들이
 
-<a href="https://neonaduri.com"> <img alt="너나들이" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F6GD1w%2FbtrDAjAghTW%2Flbl5ko3B0rmZKJwExZ3lHk%2Fimg.png" width="550" height="350"> </a>
+<a href="https://neonaduri.com"> <img alt="너나들이" src="https://user-images.githubusercontent.com/100130070/171794135-f0527617-b95b-47c6-8b1a-117b073c5e99.png" width="550" height="350"> </a>
 
 <br>
 
