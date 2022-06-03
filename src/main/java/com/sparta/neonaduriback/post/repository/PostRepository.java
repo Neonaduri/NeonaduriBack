@@ -29,10 +29,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, ShowSearchPos
     //테마별 검색
     List<Post> findAllByThemeOrderByLikeCntDesc(String theme);
     Page<Post> findAllByThemeAndIspublicTrue(String theme, Pageable pageable);
+
     //검색 결과
     @Query("Select p from Post p where p.postTitle like %:postTitle% or p.location like %:location% or p.theme like %:theme% order by p.createdAt desc")
     List<Post> findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(String postTitle, String location, String theme);
-
 
     Optional<Post> findByPostUUID(String postUUID);
 
