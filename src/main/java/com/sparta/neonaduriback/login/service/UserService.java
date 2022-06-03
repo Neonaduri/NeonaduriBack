@@ -14,27 +14,22 @@ package com.sparta.neonaduriback.login.service;
 
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.sparta.neonaduriback.common.image.model.Image;
 import com.sparta.neonaduriback.common.image.repository.ImageRepository;
 import com.sparta.neonaduriback.common.image.service.S3Uploader;
-import com.sparta.neonaduriback.like.model.Likes;
 import com.sparta.neonaduriback.like.repository.LikeRepository;
 import com.sparta.neonaduriback.login.dto.PasswordRequestDto;
 import com.sparta.neonaduriback.login.dto.SignupRequestDto;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.login.repository.UserRepository;
 import com.sparta.neonaduriback.login.validator.UserInfoValidator;
-import com.sparta.neonaduriback.post.dto.PostDto;
 import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.repository.PostRepository;
-import com.sparta.neonaduriback.review.dto.ReviewWithdrawalDto;
 import com.sparta.neonaduriback.review.model.Review;
 import com.sparta.neonaduriback.review.repository.ReviewRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

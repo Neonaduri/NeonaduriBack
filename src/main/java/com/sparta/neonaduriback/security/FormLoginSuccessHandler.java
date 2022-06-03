@@ -29,7 +29,7 @@ public class FormLoginSuccessHandler extends SavedRequestAwareAuthenticationSucc
 
         ObjectMapper objectMapper = new ObjectMapper();
         HashMap<String,String > hashMap = new HashMap<>();
-        hashMap.put("nickName",userDetails.getUsername());
+        hashMap.put("userName",userDetails.getUsername());
         String msg = new String (objectMapper.writeValueAsString(hashMap).getBytes("UTF-8"), "ISO-8859-1");
         response.getOutputStream()
                 .println(msg);
