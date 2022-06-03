@@ -71,5 +71,9 @@ public class User {
         this.profileImgUrl=profileImgUrl;
         this.nickName=nickName;
     }
+    //회원 프로필이미지가 repository에  없어도 닉네임만 변경가능하게끔 하기 위함
+    public void update(String nickName){
+        this.nickName=nickName;
+    }
 
 }
