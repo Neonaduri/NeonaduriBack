@@ -99,6 +99,6 @@ public class Post extends Timestamped {
     public void updateLikeCnt(int likeCnt){
         this.likeCnt=likeCnt;
     }
-
+    
 }
 

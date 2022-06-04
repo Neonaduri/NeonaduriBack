@@ -17,7 +17,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class SignupRequestDto {
     private String userName;
     private String nickName;
