@@ -15,12 +15,9 @@ package com.sparta.neonaduriback.login.validator;
  */
 
 
-import com.sparta.neonaduriback.like.repository.LikeRepository;
 import com.sparta.neonaduriback.login.dto.IsLoginDto;
 import com.sparta.neonaduriback.login.dto.SignupRequestDto;
 import com.sparta.neonaduriback.login.repository.UserRepository;
-import com.sparta.neonaduriback.post.model.Post;
-import com.sparta.neonaduriback.post.repository.PostRepository;
 import com.sparta.neonaduriback.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +27,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
