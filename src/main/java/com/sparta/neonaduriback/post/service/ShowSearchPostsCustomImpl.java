@@ -27,43 +27,11 @@ import static com.sparta.neonaduriback.post.model.QPost.post;
 
 @RequiredArgsConstructor
 public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
-
-
     private final JPAQueryFactory queryFactory;
 //    private final QueryDslUtil queryDslUtil;
 
-
     @Override
     public Page<Post> keywordSearch(String keyword, Pageable pageable) {
-
-//동적 sorting 적용한 방법 1
-//        List<OrderSpecifier> SORTING = queryDslUtil.getAllOrderSpecifiers(pageable);
-
-//        List<Post> results = queryFactory.selectFrom(
-//                post).
-////                ExpressionUtils.as(
-////                        JPAExpressions.selectFrom(post)
-////                                .where(post.ispublic.eq(true)),"public").
-//                where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
-//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
-//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
-//                                ))).
-//                offset(pageable.getOffset()).
-//                limit(pageable.getPageSize()).
-////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
-//                fetch();
-
-//        JPAQuery<Post> countQuery = queryFactory
-//                .select(post)
-//                .from(post)
-//                .where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
-//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
-//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
-//                                )));
-//        System.out.println("개수"+countQuery.fetchCount());
-//
-//        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchCount);
-
 
 //동적 sorting 적용한 방법2
         QueryResults<Post> results = queryFactory.selectFrom(post).
@@ -99,4 +67,30 @@ public class ShowSearchPostsCustomImpl implements ShowSearchPostsCustom {
     }
 }
 
+//동적 sorting 적용한 방법 1
+//        List<OrderSpecifier> SORTING = queryDslUtil.getAllOrderSpecifiers(pageable);
 
+//        List<Post> results = queryFactory.selectFrom(
+//                post).
+////                ExpressionUtils.as(
+////                        JPAExpressions.selectFrom(post)
+////                                .where(post.ispublic.eq(true)),"public").
+//                where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+//                                ))).
+//                offset(pageable.getOffset()).
+//                limit(pageable.getPageSize()).
+////                orderBy(SORTING.stream().toArray(OrderSpecifier[]::new)).
+//                fetch();
+
+//        JPAQuery<Post> countQuery = queryFactory
+//                .select(post)
+//                .from(post)
+//                .where(post.theme.contains(keyword).and(post.ispublic.eq(true)).
+//                        or(post.postTitle.contains(keyword).and(post.ispublic.eq(true)).
+//                                or(post.location.contains(keyword).and(post.ispublic.eq(true))
+//                                )));
+//        System.out.println("개수"+countQuery.fetchCount());
+//
+//        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchCount);
