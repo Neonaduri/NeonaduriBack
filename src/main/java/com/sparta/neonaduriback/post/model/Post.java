@@ -1,5 +1,6 @@
 package com.sparta.neonaduriback.post.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sparta.neonaduriback.common.model.Timestamped;
 import com.sparta.neonaduriback.login.model.User;
 import com.sparta.neonaduriback.post.days.model.Days;
@@ -26,7 +27,7 @@ public class Post extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
-    @Column(nullable = false)
+    @Column(nullable = false /*, unique = true*/)
     private String postUUID;
 
     @Column(nullable = false)

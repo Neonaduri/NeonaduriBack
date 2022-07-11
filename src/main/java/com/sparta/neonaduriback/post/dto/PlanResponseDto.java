@@ -1,10 +1,12 @@
 package com.sparta.neonaduriback.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sparta.neonaduriback.login.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,5 +25,6 @@ public class PlanResponseDto {
     private int likeCnt;
     private int reviewCnt;
     private User user;
+
 
 }

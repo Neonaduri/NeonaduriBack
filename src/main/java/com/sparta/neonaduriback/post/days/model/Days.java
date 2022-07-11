@@ -1,5 +1,6 @@
 package com.sparta.neonaduriback.post.days.model;
 
+import com.sparta.neonaduriback.common.model.Timestamped;
 import com.sparta.neonaduriback.post.model.Post;
 import com.sparta.neonaduriback.post.places.Places;
 import lombok.Getter;
@@ -12,17 +13,13 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Days {
+public class Days extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dayId;
 
     @Column(nullable = false)
     private int dateNumber;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "POST_ID")
-//    private Post post;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "DAYS_ID")

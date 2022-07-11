@@ -376,114 +376,71 @@ public class PostService {
             }
         }
     }
-//    public PostDto showDetail(Long postId, UserDetailsImpl userDetails) {
+
+
+//    //검색결과 조회(최초 검색조회 구현한 것 -> 성능 비교용으로 삭제 보류)
+//    public Page<?> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
+//        String postTitle=keyword;
+//        String location=keyword;
+//        String theme=keyword;
 //
-//        Post post = postRepository.findById(postId).orElseThrow(
-//                () -> new IllegalArgumentException("해당 계획이 없습니다.")
+//        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(
+//                postTitle,location,theme
 //        );
+//        List<PlanResponseDto> searchList=new ArrayList<>();
+//        Pageable pageable= getPageableList(pageno);
 //
-//        post.setIslike(userLikeTrueOrNot(userDetails.getUser().getId(), postId));
+//        for(int i=0;i<postList.size();i++){
+//            Post post=postList.get(i);
+//            //나만보기 상태이면 추가 안함(jpa로 조건 걸 수 있으나 db에 너무 많은 작업이 가는 것 같아서 자바단에서 실행)
+//            if(!post.isIspublic()/* || post.getDays().size()==0*/) continue;
+//            Long userId=userDetails.getUser().getId();
+//            //로그인 유저가 찜한 것인지 여부 확인
+//            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
+//            //게시물의 reviewCnt 계산
+//            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
 //
-//        System.out.println("post.getPostTitle() = " + post.getPostTitle());
-//
-//        Days days = daysRepository.findById(postId).orElseThrow(
-//                ()-> new IllegalArgumentException("해당 일차가 없습니다.")
-//        );
-//
-//        Places places = placesRepository.findById(days.getDayId()).orElseThrow(
-//                () -> new IllegalArgumentException("해당 장소가 없습니다.")
-//        );
-//
-//        PlacesDto placesDto = new PlacesDto(places.getPlaceId(), places.getPlaceName(),places.getPlaceInfoUrl(), places.getCategory(),places.getAddress(),
-//                places.getRoadAddress(),places.getPlaceMemo(), places.getPlanTime(),places.getLat(),places.getLng());
-//
-//        System.out.println("placesDto.getPlaceName() = " + placesDto.getPlaceName());
-//        System.out.println("placesDto.getPlanTime() = " + placesDto.getPlanTime());
-//
-//
-//        DaysDto daysDto = new DaysDto(days.getDayId(), days.getDateNumber(), List<PlacesDto>);
-//
-//        System.out.println("daysDto.getDateNumber() = " + daysDto.getDateNumber());
-//        System.out.println("daysDto.getPlaces() = " + daysDto.getPlaces());
-//
-//        PostDto postDto = new PostDto(post.getPostId(), post.getPostUUID(), post.getStartDate(), post.getEndDate(),
-//                post.getDateCnt(), post.getPostTitle(), post.getLocation(), post.getPostImgUrl(), post.getTheme(),
-//                post.isIslike(), post.getLikeCnt(), post.isIspublic(), post.getViewCnt(), post.getUser(), Collections.singletonList(daysDto));
-//
-//        System.out.println("postDto.getPostTitle() = " + postDto.getPostTitle());
-//        System.out.println("postDto.getUser() = " + postDto.getUser().getNickName());
-//
-//        //전체공개이고
-//        if (post.isIspublic()) {
-//
-//            // 게시글 조회 수 계산
-//            post.setViewCnt(post.getViewCnt() + 1);
-//            postRepository.save(post);
-//
-//            return postDto;
-//            } else {
-//                return null;
+//            PlanResponseDto themeAndSearchDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
+//                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
+//            searchList.add(themeAndSearchDto);
 //        }
+//        int start=pageno*8;
+//        int end=Math.min((start+8), searchList.size());
+//        return paging.overPages(searchList,start,end,pageable,pageno);
 //    }
-
-    //검색결과 조회
-    public Page<?> showSearchPosts(int pageno, String keyword, UserDetailsImpl userDetails) {
-        String postTitle=keyword;
-        String location=keyword;
-        String theme=keyword;
-
-        List<Post> postList=postRepository.findByPostTitleContainingOrLocationContainingOrThemeContainingOrderByCreatedAtDesc(
-                postTitle,location,theme
-        );
-        List<PlanResponseDto> searchList=new ArrayList<>();
-
-        Pageable pageable= getPageableList(pageno);
-
-
-        for(int i=0;i<postList.size();i++){
-            Post post=postList.get(i);
-            //나만보기 상태이면 추가 안함(jpa로 조건 걸 수 있으나 db에 너무 많은 작업이 가는 것 같아서 자바단에서 실행)
-            if(!post.isIspublic() || post.getDays().size()==0) continue;
-            //찜받은 갯수 확인
-//            int likeCnt=countLike(post.getPostId());
-            Long userId=userDetails.getUser().getId();
-            //로그인 유저가 찜한 것인지 여부 확인
-            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
-            //게시물의 reviewCnt 계산
-            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
-
-            PlanResponseDto themeAndSearchDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
-                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
-            searchList.add(themeAndSearchDto);
-        }
-
-        int start=pageno*8;
-        int end=Math.min((start+8), searchList.size());
-
-        return paging.overPages(searchList,start,end,pageable,pageno);
-    }
-    //검색테스트
-    public Page<?> testSearchPosts(String keyword, int page, int size, String sortBy,UserDetailsImpl userDetails) {
+//    //검색개선(1차 수정한 검색 조회 서비스, deprecated 예정)
+//    public Page<?> betterSearchPosts(String keyword, int page, int size, String sortBy,UserDetailsImpl userDetails) {
+//        Sort.Direction direction=Sort.Direction.DESC;
+//        Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
+//        Pageable pageable=PageRequest.of(page, size,sort);
+//        Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable);
+//        System.out.println("totalelements"+searchResults.getTotalElements());
+//
+//        List<PlanResponseDto> searchList=new ArrayList<>();
+//        for(Post post: searchResults){
+////            if(!post.isIspublic() || post.getDays().size()==0) continue;
+//            Long userId=userDetails.getUser().getId();
+//            //로그인 유저가 찜한 것인지 여부 확인
+//            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
+//            //게시물의 reviewCnt 계산
+//            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
+//            PlanResponseDto themeAndSearchDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
+//                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
+//            searchList.add(themeAndSearchDto);
+//        }
+//        System.out.println(pageable.getSort());
+//        return new PageImpl<>(searchList, pageable, searchResults.getTotalElements());
+//
+//    }
+    //Querydsl 적용한 검색 조회(2차 수정 버전)
+    public Page<?> enhancedSearchPosts(String keyword, int page, int size, String sortBy,UserDetailsImpl userDetails) {
         Sort.Direction direction=Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy).and(Sort.by(direction, "postId"));
         Pageable pageable=PageRequest.of(page, size,sort);
-        Page<Post> searchResults=postRepository.keywordSearch(keyword, pageable);
+        Page<PlanResponseDto> searchResults=postRepository.keywordSearch(keyword, pageable, userDetails);
         System.out.println("totalelements"+searchResults.getTotalElements());
-
-        List<PlanResponseDto> searchList=new ArrayList<>();
-        for(Post post: searchResults){
-//            if(!post.isIspublic() || post.getDays().size()==0) continue;
-            Long userId=userDetails.getUser().getId();
-            //로그인 유저가 찜한 것인지 여부 확인
-            post.setIslike(userLikeTrueOrNot(userId, post.getPostId()));
-            //게시물의 reviewCnt 계산
-            int reviewCnt=reviewRepository.countByPostId(post.getPostId()).intValue();
-            PlanResponseDto themeAndSearchDto =new PlanResponseDto(post.getPostId(), post.getPostImgUrl(),post.getPostTitle(),
-                    post.getStartDate(), post.getEndDate(), post.getLocation(),post.getTheme(), post.isIslike(), post.getLikeCnt(), reviewCnt, post.getUser());
-            searchList.add(themeAndSearchDto);
-        }
-        System.out.println(pageable.getSort());
-        return new PageImpl<>(searchList, pageable, searchResults.getTotalElements());
+        System.out.println(searchResults.getContent().size());
+        return searchResults;
 
     }
 
