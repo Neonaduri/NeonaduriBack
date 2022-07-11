@@ -123,13 +123,13 @@ public class PostController {
         return new PlanPagingDto(postList);
     }
 
-    //검색 결과 조회 => 에러발생 수정하자아아아 (requesetParam으로 dto를 받거나 ModelAttribute로 받는다,,?)
-    @GetMapping("/plans/keyword/{keyword}/{pageno}")
-    public PlanPagingDto showSearchPosts(@PathVariable("pageno") int pageno, @PathVariable("keyword") String keyword,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
-        Page<?> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
-        return new PlanPagingDto(postList);
-    }
+//    //검색 결과 조회(최초 페이징 처리 수정 전)
+//    @GetMapping("/plans/keyword/{keyword}/{pageno}")
+//    public PlanPagingDto showSearchPosts(@PathVariable("pageno") int pageno, @PathVariable("keyword") String keyword,
+//                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+//        Page<?> postList=postService.showSearchPosts(pageno-1, keyword, userDetails);
+//        return new PlanPagingDto(postList);
+//    }
 
     //검색 querydsl
     @GetMapping("/plans/keyword/results")//?keyword=액티&pageno=1&sortBy=viewCnt
@@ -143,7 +143,9 @@ public class PostController {
         System.out.println(pageno);
         System.out.println(sortBy);
         System.out.println(page);
-        Page<?> postList = postService.testSearchPosts(keyword, page, size, sortBy, userDetails);
+//        성능개선 전
+//        Page<?> postList = postService.betterSearchPosts(keyword, page, size, sortBy, userDetails);
+        Page<?> postList = postService.enhancedSearchPosts(keyword, page, size, sortBy, userDetails);
         return new PlanPagingDto(postList);
     }
 
